@@ -3,13 +3,17 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Menu, X, ShoppingCart, Phone } from "lucide-react";
+import { useCart } from "@/context/CartContext";
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { getCartCount } = useCart();
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
   };
+
+  const cartCount = getCartCount();
 
   return (
     <header className="bg-white shadow-sm sticky top-0 z-50">
@@ -41,7 +45,7 @@ const Navbar = () => {
           <Link to="/cart" className="relative">
             <Button variant="ghost" size="icon" className="relative">
               <ShoppingCart size={20} />
-              <span className="absolute -top-2 -right-2 bg-farm-green-dark text-white text-xs w-5 h-5 rounded-full flex items-center justify-center">0</span>
+              <span className="absolute -top-2 -right-2 bg-farm-green-dark text-white text-xs w-5 h-5 rounded-full flex items-center justify-center">{cartCount}</span>
             </Button>
           </Link>
         </div>
@@ -66,9 +70,9 @@ const Navbar = () => {
                 <Phone size={18} />
                 <span>Call to Order</span>
               </a>
-              <Link to="/cart" className="btn-secondary flex items-center justify-center gap-2">
+              <Link to="/cart" className="btn-secondary flex items-center justify-center gap-2" onClick={toggleMenu}>
                 <ShoppingCart size={18} />
-                <span>Cart (0)</span>
+                <span>Cart ({cartCount})</span>
               </Link>
             </div>
           </nav>

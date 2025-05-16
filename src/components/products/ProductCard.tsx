@@ -1,6 +1,7 @@
 
 import { Link } from "react-router-dom";
 import { ShoppingCart } from "lucide-react";
+import { useCart } from "@/context/CartContext";
 
 export interface Product {
   id: number;
@@ -16,6 +17,13 @@ interface ProductCardProps {
 }
 
 const ProductCard = ({ product }: ProductCardProps) => {
+  const { addToCart } = useCart();
+
+  const handleAddToCart = (e: React.MouseEvent) => {
+    e.preventDefault();
+    addToCart(product, 1);
+  };
+
   return (
     <div className="bg-white border border-gray-100 rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow">
       <div className="h-52 overflow-hidden">
@@ -49,6 +57,7 @@ const ProductCard = ({ product }: ProductCardProps) => {
             <button 
               className="bg-farm-green-dark text-white p-1.5 rounded-md hover:bg-farm-green-light transition-colors"
               aria-label="Add to cart"
+              onClick={handleAddToCart}
             >
               <ShoppingCart size={18} />
             </button>
