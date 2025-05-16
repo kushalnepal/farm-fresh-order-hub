@@ -1,9 +1,11 @@
 
 import { Link } from "react-router-dom";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, ShoppingCart } from "lucide-react";
+import { useCart } from "@/context/CartContext";
+import { Product } from "@/components/products/ProductCard";
 
 // Sample product data
-const featuredProducts = [
+const featuredProducts: Product[] = [
   {
     id: 1,
     name: "Fresh Organic Vegetables",
@@ -31,6 +33,13 @@ const featuredProducts = [
 ];
 
 const FeaturedProducts = () => {
+  const { addToCart } = useCart();
+  
+  const handleAddToCart = (product: Product, e: React.MouseEvent) => {
+    e.preventDefault();
+    addToCart(product, 1);
+  };
+
   return (
     <section className="section-padding bg-white">
       <div className="container-custom">
@@ -63,9 +72,18 @@ const FeaturedProducts = () => {
                 <p className="text-gray-600 mb-4">{product.description}</p>
                 <div className="flex justify-between items-center">
                   <span className="text-farm-green-dark font-semibold">NPR {product.price}</span>
-                  <Link to={`/products/${product.id}`} className="text-farm-brown-dark font-medium hover:underline">
-                    View Details
-                  </Link>
+                  <div className="flex gap-2">
+                    <Link to={`/products/${product.id}`} className="text-farm-brown-dark font-medium hover:underline">
+                      View Details
+                    </Link>
+                    <button 
+                      className="bg-farm-green-dark text-white p-1.5 rounded-md hover:bg-farm-green-light transition-colors"
+                      aria-label="Add to cart"
+                      onClick={(e) => handleAddToCart(product, e)}
+                    >
+                      <ShoppingCart size={18} />
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
