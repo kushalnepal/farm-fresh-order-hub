@@ -1,7 +1,6 @@
 
 import { Layout } from "@/components/layout/Layout";
 import OrderForm from "@/components/order/OrderForm";
-import { WhatsApp } from "lucide-react";
 
 const OrderNow = () => {
   return (
@@ -58,7 +57,7 @@ const OrderNow = () => {
                     rel="noopener noreferrer"
                     className="bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-md transition-colors duration-300 flex items-center justify-center gap-2 w-full"
                   >
-                    <WhatsApp size={20} />
+                    {/* Removed WhatsApp icon reference */}
                     <span>Order via WhatsApp</span>
                   </a>
                 </div>

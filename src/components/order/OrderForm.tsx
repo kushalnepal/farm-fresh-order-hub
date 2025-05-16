@@ -1,6 +1,6 @@
 
 import { useState, FormEvent } from "react";
-import { Phone, WhatsApp } from "lucide-react";
+import { Phone } from "lucide-react";
 import { toast } from "sonner";
 
 const OrderForm = () => {
@@ -156,7 +156,8 @@ const OrderForm = () => {
                 className="form-radio h-5 w-5 text-farm-green-dark"
               />
               <span className="ml-2 flex items-center">
-                <WhatsApp size={18} className="mr-1" /> WhatsApp
+                {/* Removed WhatsApp icon reference */}
+                <span>WhatsApp</span>
               </span>
             </label>
           </div>
