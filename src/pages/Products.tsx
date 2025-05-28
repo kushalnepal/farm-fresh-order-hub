@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Layout } from "@/components/layout/Layout";
 import ProductCard, { Product } from "@/components/products/ProductCard";
@@ -58,7 +57,7 @@ const productsList: Product[] = [
   {
     id: 7,
     name: "Premium Broiler Chicken",
-    image: "https://images.unsplash.com/photo-1587489809149-430fb1045bc9?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1632&q=80",
+    image: "https://images.unsplash.com/photo-1548550023-2bdb3c5beed7?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1528&q=80",
     category: "Chicken",
     description: "High-quality broiler chicken raised in free-range conditions.",
     price: 650,
