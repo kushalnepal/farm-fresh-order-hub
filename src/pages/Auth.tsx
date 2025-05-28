@@ -10,7 +10,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
 const Auth = () => {
-  const location = useLocation();
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -18,11 +17,12 @@ const Auth = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const navigate = useNavigate();
+  const location = useLocation();
   const { toast } = useToast();
 
-  // Check if we should show signup form based on navigation state
   useEffect(() => {
-    if (location.state?.isSignup) {
+    const state = location.state as { isSignup?: boolean } | null;
+    if (state?.isSignup) {
       setIsLogin(false);
     }
   }, [location.state]);
