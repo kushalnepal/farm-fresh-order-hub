@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Menu, X, ShoppingCart, Phone } from "lucide-react";
+import { Menu, X, ShoppingCart, Phone, LogIn } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 
 const Navbar = () => {
@@ -42,6 +42,10 @@ const Navbar = () => {
             <Phone size={18} />
             <span>Call to Order</span>
           </a>
+          <Link to="/auth" className="btn-outline py-2 px-4">
+            <LogIn size={18} />
+            <span>Login</span>
+          </Link>
           <Link to="/cart" className="relative">
             <Button variant="ghost" size="icon" className="relative">
               <ShoppingCart size={20} />
@@ -70,6 +74,10 @@ const Navbar = () => {
                 <Phone size={18} />
                 <span>Call to Order</span>
               </a>
+              <Link to="/auth" className="btn-secondary flex items-center justify-center gap-2" onClick={toggleMenu}>
+                <LogIn size={18} />
+                <span>Login</span>
+              </Link>
               <Link to="/cart" className="btn-secondary flex items-center justify-center gap-2" onClick={toggleMenu}>
                 <ShoppingCart size={18} />
                 <span>Cart ({cartCount})</span>
