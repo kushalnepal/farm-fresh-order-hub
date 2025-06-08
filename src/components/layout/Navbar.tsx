@@ -4,10 +4,13 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Menu, X, ShoppingCart, Phone, LogIn } from "lucide-react";
 import { useCart } from "@/context/CartContext";
+import { useAuth } from "@/context/AuthContext";
+import UserProfile from "./UserProfile";
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { getCartCount } = useCart();
+  const { user, loading } = useAuth();
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
@@ -43,10 +46,16 @@ const Navbar = () => {
             <span>Call to Order</span>
           </a>
           
-          <Link to="/auth" className="btn-secondary flex items-center gap-2">
-            <LogIn size={18} />
-            <span>Login</span>
-          </Link>
+          {!loading && (
+            user ? (
+              <UserProfile />
+            ) : (
+              <Link to="/auth" className="btn-secondary flex items-center gap-2">
+                <LogIn size={18} />
+                <span>Login</span>
+              </Link>
+            )
+          )}
           
           <Link to="/cart" className="relative">
             <Button variant="ghost" size="icon" className="relative">
@@ -76,10 +85,18 @@ const Navbar = () => {
                 <Phone size={18} />
                 <span>Call to Order</span>
               </a>
-              <Link to="/auth" className="btn-secondary flex items-center justify-center gap-2" onClick={toggleMenu}>
-                <LogIn size={18} />
-                <span>Login</span>
-              </Link>
+              {!loading && (
+                user ? (
+                  <div className="px-4 py-2">
+                    <UserProfile />
+                  </div>
+                ) : (
+                  <Link to="/auth" className="btn-secondary flex items-center justify-center gap-2" onClick={toggleMenu}>
+                    <LogIn size={18} />
+                    <span>Login</span>
+                  </Link>
+                )
+              )}
               <Link to="/cart" className="btn-secondary flex items-center justify-center gap-2" onClick={toggleMenu}>
                 <ShoppingCart size={18} />
                 <span>Cart ({cartCount})</span>

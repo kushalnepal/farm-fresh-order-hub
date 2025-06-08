@@ -14,6 +14,7 @@ const Auth = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [isAdminSignup, setIsAdminSignup] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const navigate = useNavigate();
@@ -55,17 +56,29 @@ const Auth = () => {
           navigate("/");
         }
       } else {
-        const { error } = await supabase.auth.signUp({
+        const signupData = {
           email,
           password,
-        });
+          options: {
+            data: {
+              role: isAdminSignup ? 'admin' : 'user'
+            }
+          }
+        };
+
+        const { error } = await supabase.auth.signUp(signupData);
         
         if (error) {
           setError(error.message);
         } else {
+          // Store admin role in localStorage for demo purposes
+          if (isAdminSignup) {
+            localStorage.setItem(`adminUser_${email}`, 'true');
+          }
+          
           toast({
             title: "Account created!",
-            description: "You have successfully signed up.",
+            description: `You have successfully signed up${isAdminSignup ? ' as an admin' : ''}.`,
           });
           navigate("/");
         }
@@ -136,18 +149,33 @@ const Auth = () => {
               </div>
               
               {!isLogin && (
-                <div className="space-y-2">
-                  <Label htmlFor="confirmPassword">Confirm Password</Label>
-                  <Input
-                    id="confirmPassword"
-                    type="password"
-                    placeholder="Confirm your password"
-                    value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
-                    required
-                    minLength={6}
-                  />
-                </div>
+                <>
+                  <div className="space-y-2">
+                    <Label htmlFor="confirmPassword">Confirm Password</Label>
+                    <Input
+                      id="confirmPassword"
+                      type="password"
+                      placeholder="Confirm your password"
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      required
+                      minLength={6}
+                    />
+                  </div>
+                  
+                  <div className="flex items-center space-x-2">
+                    <input
+                      type="checkbox"
+                      id="adminSignup"
+                      checked={isAdminSignup}
+                      onChange={(e) => setIsAdminSignup(e.target.checked)}
+                      className="rounded border-gray-300"
+                    />
+                    <Label htmlFor="adminSignup" className="text-sm">
+                      Sign up as Admin
+                    </Label>
+                  </div>
+                </>
               )}
               
               <Button 
