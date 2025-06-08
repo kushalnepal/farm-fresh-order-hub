@@ -1,4 +1,3 @@
-
 import { useState, FormEvent } from "react";
 import { Phone } from "lucide-react";
 import { toast } from "sonner";
@@ -30,8 +29,21 @@ const OrderForm = () => {
       return;
     }
     
-    // Here you would normally send the data to your backend
-    console.log("Order submitted:", formData);
+    // Create order object
+    const order = {
+      id: Date.now().toString(),
+      ...formData,
+      status: 'pending',
+      createdAt: new Date().toISOString()
+    };
+    
+    // Save to localStorage for admin panel
+    const existingOrders = localStorage.getItem('farmfresh_orders');
+    const orders = existingOrders ? JSON.parse(existingOrders) : [];
+    orders.push(order);
+    localStorage.setItem('farmfresh_orders', JSON.stringify(orders));
+    
+    console.log("Order submitted:", order);
     
     // Show success message
     toast.success("Your order has been submitted! We'll contact you soon.");
@@ -156,7 +168,6 @@ const OrderForm = () => {
                 className="form-radio h-5 w-5 text-farm-green-dark"
               />
               <span className="ml-2 flex items-center">
-                {/* Removed WhatsApp icon reference */}
                 <span>WhatsApp</span>
               </span>
             </label>
