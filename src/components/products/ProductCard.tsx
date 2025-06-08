@@ -10,6 +10,8 @@ export interface Product {
   category: string;
   description: string;
   price: number;
+  onSale?: boolean;
+  salePrice?: number;
 }
 
 interface ProductCardProps {
@@ -24,8 +26,20 @@ const ProductCard = ({ product }: ProductCardProps) => {
     addToCart(product, 1);
   };
 
+  const displayPrice = product.onSale && product.salePrice ? product.salePrice : product.price;
+  const originalPrice = product.price;
+
   return (
-    <div className="bg-white border border-gray-100 rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+    <div className="bg-white border border-gray-100 rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow relative">
+      {/* Sale Badge */}
+      {product.onSale && (
+        <div className="absolute top-2 left-2 z-10">
+          <span className="bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full">
+            SALE
+          </span>
+        </div>
+      )}
+      
       <div className="h-52 overflow-hidden">
         <img
           src={product.image}
@@ -45,7 +59,16 @@ const ProductCard = ({ product }: ProductCardProps) => {
         <p className="text-gray-600 text-sm mb-4 line-clamp-2">{product.description}</p>
         
         <div className="flex justify-between items-center">
-          <span className="text-farm-green-dark font-semibold">NPR {product.price}</span>
+          <div className="flex flex-col">
+            <span className="text-farm-green-dark font-semibold">
+              NPR {displayPrice}
+            </span>
+            {product.onSale && product.salePrice && (
+              <span className="text-gray-500 line-through text-sm">
+                NPR {originalPrice}
+              </span>
+            )}
+          </div>
           
           <div className="flex gap-2">
             <Link 
