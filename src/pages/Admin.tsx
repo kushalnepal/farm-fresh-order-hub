@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Layout } from "@/components/layout/Layout";
@@ -9,7 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { Plus, Package, ShoppingBag, Tag, LogOut } from "lucide-react";
+import { Plus, Package, ShoppingBag, Tag, LogOut, Upload, Image } from "lucide-react";
 
 interface Order {
   id: string;
@@ -32,13 +33,15 @@ interface Product {
   inStock: boolean;
   onSale: boolean;
   salePrice?: number;
+  image?: string;
 }
 
 const Admin = () => {
-  const [activeTab, setActiveTab] = useState<'orders' | 'products' | 'sales'>('orders');
+  const [activeTab, setActiveTab] = useState<'orders' | 'products' | 'sales' | 'algorithms'>('orders');
   const [orders, setOrders] = useState<Order[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
   const [showAddProduct, setShowAddProduct] = useState(false);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
   const navigate = useNavigate();
   
   // New product form data
@@ -47,7 +50,8 @@ const Admin = () => {
     price: "",
     description: "",
     category: "",
-    inStock: true
+    inStock: true,
+    image: null as File | null
   });
 
   // Check admin authentication
@@ -79,7 +83,8 @@ const Admin = () => {
           description: 'Fresh organic tomatoes from our farm',
           category: 'Vegetables',
           inStock: true,
-          onSale: false
+          onSale: false,
+          image: 'https://images.unsplash.com/photo-1518977676601-b53f82aba655?w=400'
         },
         {
           id: '2',
@@ -88,7 +93,8 @@ const Admin = () => {
           description: 'Crisp and sweet organic carrots',
           category: 'Vegetables',
           inStock: true,
-          onSale: false
+          onSale: false,
+          image: 'https://images.unsplash.com/photo-1445282768818-728615cc910a?w=400'
         },
         {
           id: '3',
@@ -97,7 +103,8 @@ const Admin = () => {
           description: 'Fresh leafy green lettuce',
           category: 'Vegetables',
           inStock: true,
-          onSale: false
+          onSale: false,
+          image: 'https://images.unsplash.com/photo-1622206151226-18ca2c9ab4a1?w=400'
         },
         {
           id: '4',
@@ -106,7 +113,8 @@ const Admin = () => {
           description: 'Colorful bell peppers',
           category: 'Vegetables',
           inStock: true,
-          onSale: false
+          onSale: false,
+          image: 'https://images.unsplash.com/photo-1563565375-f3fdfdbefa83?w=400'
         }
       ];
       setProducts(defaultProducts);
@@ -118,6 +126,18 @@ const Admin = () => {
     localStorage.removeItem('adminAuth');
     toast.success("Logged out successfully");
     navigate('/admin-login');
+  };
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setNewProduct({...newProduct, image: file});
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        setImagePreview(e.target?.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
   };
 
   const handleAddProduct = (e: React.FormEvent) => {
@@ -135,7 +155,8 @@ const Admin = () => {
       description: newProduct.description,
       category: newProduct.category || 'general',
       inStock: newProduct.inStock,
-      onSale: false
+      onSale: false,
+      image: imagePreview || undefined
     };
     
     const updatedProducts = [...products, product];
@@ -148,8 +169,10 @@ const Admin = () => {
       price: "",
       description: "",
       category: "",
-      inStock: true
+      inStock: true,
+      image: null
     });
+    setImagePreview(null);
     
     setShowAddProduct(false);
     toast.success("Product added successfully!");
@@ -208,7 +231,7 @@ const Admin = () => {
         </div>
 
         {/* Tab Navigation */}
-        <div className="flex gap-4 mb-8">
+        <div className="flex gap-4 mb-8 flex-wrap">
           <Button
             variant={activeTab === 'orders' ? 'default' : 'outline'}
             onClick={() => setActiveTab('orders')}
@@ -232,6 +255,13 @@ const Admin = () => {
           >
             <Tag size={18} />
             Sales Management
+          </Button>
+          <Button
+            variant={activeTab === 'algorithms' ? 'default' : 'outline'}
+            onClick={() => setActiveTab('algorithms')}
+            className="flex items-center gap-2"
+          >
+            🧠 Algorithms
           </Button>
         </div>
 
@@ -369,6 +399,42 @@ const Admin = () => {
                           placeholder="e.g., vegetables, dairy, fruits"
                         />
                       </div>
+                      <div>
+                        <Label htmlFor="productImage">Product Image</Label>
+                        <div className="flex items-center gap-2">
+                          <Input
+                            id="productImage"
+                            type="file"
+                            accept="image/*"
+                            onChange={handleImageChange}
+                            className="hidden"
+                          />
+                          <Button
+                            type="button"
+                            variant="outline"
+                            onClick={() => document.getElementById('productImage')?.click()}
+                            className="flex items-center gap-2"
+                          >
+                            <Upload size={16} />
+                            Upload Image
+                          </Button>
+                          {imagePreview && (
+                            <div className="flex items-center gap-2">
+                              <Image size={16} className="text-green-600" />
+                              <span className="text-sm text-green-600">Image selected</span>
+                            </div>
+                          )}
+                        </div>
+                        {imagePreview && (
+                          <div className="mt-2">
+                            <img
+                              src={imagePreview}
+                              alt="Preview"
+                              className="w-20 h-20 object-cover rounded border"
+                            />
+                          </div>
+                        )}
+                      </div>
                     </div>
                     <div>
                       <Label htmlFor="productDescription">Description *</Label>
@@ -381,7 +447,18 @@ const Admin = () => {
                     </div>
                     <div className="flex gap-4">
                       <Button type="submit">Add Product</Button>
-                      <Button type="button" variant="outline" onClick={() => setShowAddProduct(false)}>
+                      <Button type="button" variant="outline" onClick={() => {
+                        setShowAddProduct(false);
+                        setImagePreview(null);
+                        setNewProduct({
+                          name: "",
+                          price: "",
+                          description: "",
+                          category: "",
+                          inStock: true,
+                          image: null
+                        });
+                      }}>
                         Cancel
                       </Button>
                     </div>
@@ -399,6 +476,7 @@ const Admin = () => {
                   <Table>
                     <TableHeader>
                       <TableRow>
+                        <TableHead>Image</TableHead>
                         <TableHead>Product Name</TableHead>
                         <TableHead>Category</TableHead>
                         <TableHead>Price</TableHead>
@@ -410,6 +488,19 @@ const Admin = () => {
                     <TableBody>
                       {products.map((product) => (
                         <TableRow key={product.id}>
+                          <TableCell>
+                            {product.image ? (
+                              <img
+                                src={product.image}
+                                alt={product.name}
+                                className="w-12 h-12 object-cover rounded"
+                              />
+                            ) : (
+                              <div className="w-12 h-12 bg-gray-200 rounded flex items-center justify-center">
+                                <Image size={16} className="text-gray-400" />
+                              </div>
+                            )}
+                          </TableCell>
                           <TableCell className="font-medium">{product.name}</TableCell>
                           <TableCell>{product.category}</TableCell>
                           <TableCell>NPR {product.price}</TableCell>
@@ -498,6 +589,134 @@ const Admin = () => {
                   </TableBody>
                 </Table>
               )}
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Algorithms Tab */}
+        {activeTab === 'algorithms' && (
+          <Card>
+            <CardHeader>
+              <CardTitle>Algorithms Used in Website</CardTitle>
+              <CardDescription>
+                Technical documentation of algorithms implemented in the farm fresh application
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="space-y-4">
+                <h3 className="text-xl font-semibold flex items-center gap-2">
+                  🛒 1. Cart & Order Optimization
+                </h3>
+                
+                <div className="pl-4 space-y-3">
+                  <h4 className="font-medium">📦 Greedy Algorithm for Delivery Packing</h4>
+                  <p className="text-sm text-gray-600">
+                    If you later offer delivery: Problem: Fit items into delivery boxes based on volume/weight.
+                    Solution: Use a greedy algorithm to optimize item arrangement into boxes.
+                  </p>
+                  
+                  <h4 className="font-medium">🔁 Deduplication / Quantity Merge</h4>
+                  <p className="text-sm text-gray-600">
+                    When the same product is added again to cart: Use a hash map (object or Map) to merge quantities instead of duplicate entries.
+                  </p>
+                </div>
+
+                <h3 className="text-xl font-semibold flex items-center gap-2">
+                  🔍 2. Search & Filter System
+                </h3>
+                
+                <div className="pl-4 space-y-3">
+                  <h4 className="font-medium">✅ Basic Filtering</h4>
+                  <p className="text-sm text-gray-600">
+                    Filter by category, price range, availability, etc. Use array filters or index-based sorting.
+                  </p>
+                  
+                  <h4 className="font-medium">🔠 Fuzzy Search (Product Names)</h4>
+                  <p className="text-sm text-gray-600">
+                    Use Levenshtein Distance or Tries for fuzzy search (e.g., "lettice" → "lettuce").
+                    Consider using libraries like: Fuse.js (lightweight fuzzy search), lunr.js (search indexing)
+                  </p>
+                </div>
+
+                <h3 className="text-xl font-semibold flex items-center gap-2">
+                  📊 3. Inventory & Sales
+                </h3>
+                
+                <div className="pl-4 space-y-3">
+                  <h4 className="font-medium">📉 Time Series Forecasting (Future Feature)</h4>
+                  <p className="text-sm text-gray-600">
+                    Predict future demand (e.g., peak chicken sales on weekends).
+                    Use algorithms like: Simple Moving Average, Exponential Smoothing.
+                    Later: integrate ARIMA or ML-based models
+                  </p>
+                  
+                  <h4 className="font-medium">🧮 Inventory Threshold Alerts</h4>
+                  <p className="text-sm text-gray-600">
+                    When stock &lt; threshold, alert admin. Simple if-check logic, or use priority queues to show low-stock items first.
+                  </p>
+                </div>
+
+                <h3 className="text-xl font-semibold flex items-center gap-2">
+                  🧠 4. Recommendations
+                </h3>
+                
+                <div className="pl-4 space-y-3">
+                  <h4 className="font-medium">🛍️ Collaborative Filtering (Basic Recommender System)</h4>
+                  <p className="text-sm text-gray-600">
+                    Recommend products based on: Items commonly bought together (association rules), Browsing history.
+                    Example: If User A bought chicken and lettuce, and User B bought chicken → suggest lettuce to User B.
+                    Can implement this using: Apriori algorithm (basic rule mining), Item-based filtering using a similarity matrix (cosine similarity)
+                  </p>
+                </div>
+
+                <h3 className="text-xl font-semibold flex items-center gap-2">
+                  🔐 5. Security / Auth
+                </h3>
+                
+                <div className="pl-4 space-y-3">
+                  <h4 className="font-medium">🔐 Password Hashing</h4>
+                  <p className="text-sm text-gray-600">
+                    Handled by Supabase, but if doing manually: Use bcrypt or argon2 for secure password storage.
+                  </p>
+                  
+                  <h4 className="font-medium">👮 Role-Based Access Control</h4>
+                  <p className="text-sm text-gray-600">
+                    Use role-check logic or Supabase RLS policies to: Allow admin access to /admin, Restrict users from viewing others' orders
+                  </p>
+                </div>
+
+                <h3 className="text-xl font-semibold flex items-center gap-2">
+                  💳 6. Payment Validations
+                </h3>
+                
+                <div className="pl-4 space-y-3">
+                  <h4 className="font-medium">🔄 Retry Logic for Payments</h4>
+                  <p className="text-sm text-gray-600">
+                    Retry failed payments with exponential backoff: Use retry algorithms like: delay = base * 2^attempt
+                  </p>
+                </div>
+
+                <h3 className="text-xl font-semibold flex items-center gap-2">
+                  🗺️ 7. Routing & UI Logic
+                </h3>
+                
+                <div className="pl-4 space-y-3">
+                  <h4 className="font-medium">📦 Client-Side State Management</h4>
+                  <p className="text-sm text-gray-600">
+                    Use Finite State Machines (with xstate) for: Checkout process, Authentication flow (login → loading → success/error)
+                  </p>
+                </div>
+
+                <h3 className="text-xl font-semibold flex items-center gap-2">
+                  🧠 Bonus (Advanced / Optional AI)
+                </h3>
+                
+                <div className="pl-4 space-y-3">
+                  <p className="text-sm text-gray-600">
+                    If you want to go further: Integrate a chatbot (GPT-style) for customer help.
+                  </p>
+                </div>
+              </div>
             </CardContent>
           </Card>
         )}

@@ -29,6 +29,9 @@ const ProductCard = ({ product }: ProductCardProps) => {
   const displayPrice = product.onSale && product.salePrice ? product.salePrice : product.price;
   const originalPrice = product.price;
 
+  // Fallback image if no image is provided
+  const productImage = product.image || 'https://images.unsplash.com/photo-1540420773420-3366772f4999?w=400';
+
   return (
     <div className="bg-white border border-gray-100 rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow relative">
       {/* Sale Badge */}
@@ -42,9 +45,13 @@ const ProductCard = ({ product }: ProductCardProps) => {
       
       <div className="h-52 overflow-hidden">
         <img
-          src={product.image}
+          src={productImage}
           alt={product.name}
           className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
+          onError={(e) => {
+            // Fallback to default image if the product image fails to load
+            e.currentTarget.src = 'https://images.unsplash.com/photo-1540420773420-3366772f4999?w=400';
+          }}
         />
       </div>
       
