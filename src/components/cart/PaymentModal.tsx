@@ -97,6 +97,48 @@ const PaymentModal = ({ isOpen, onClose, total }: PaymentModalProps) => {
               </div>
             </div>
           </div>
+
+          {/* Payment Instructions */}
+          {paymentMethod === 'eSewa' && (
+            <div className="mt-4 p-4 bg-green-50 border border-green-200 rounded-lg">
+              <h4 className="font-semibold text-green-800 mb-2">eSewa Payment Instructions</h4>
+              <div className="text-sm text-green-700 space-y-1">
+                <p><strong>Payment Number:</strong> 9803342289</p>
+                <p><strong>Amount:</strong> NPR {total}</p>
+                <p className="mt-2">
+                  1. Open your eSewa app<br/>
+                  2. Send money to: <strong>9803342289</strong><br/>
+                  3. Enter amount: <strong>NPR {total}</strong><br/>
+                  4. Complete the transaction<br/>
+                  5. Click "Pay Now" below to confirm your order
+                </p>
+              </div>
+            </div>
+          )}
+
+          {paymentMethod === 'PhonePay' && (
+            <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+              <h4 className="font-semibold text-blue-800 mb-2">PhonePay Payment Instructions</h4>
+              <div className="text-sm text-blue-700 space-y-1">
+                <p><strong>Amount:</strong> NPR {total}</p>
+                <p className="mt-2">
+                  Complete your payment through PhonePay and click "Pay Now" to confirm your order.
+                </p>
+              </div>
+            </div>
+          )}
+
+          {paymentMethod === 'Cash' && (
+            <div className="mt-4 p-4 bg-amber-50 border border-amber-200 rounded-lg">
+              <h4 className="font-semibold text-amber-800 mb-2">Cash on Delivery</h4>
+              <div className="text-sm text-amber-700">
+                <p><strong>Amount:</strong> NPR {total}</p>
+                <p className="mt-2">
+                  Pay NPR {total} in cash when your order is delivered to your doorstep.
+                </p>
+              </div>
+            </div>
+          )}
         </div>
         
         <DialogFooter>
