@@ -1,11 +1,8 @@
-
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { useState } from "react";
 import { useCart } from "@/context/CartContext";
-import eSewaLogo from "/src/assets/esewa-logo.png";
-import phonePayLogo from "/src/assets/phonepay-logo.png";
 
 interface PaymentModalProps {
   isOpen: boolean;
@@ -109,21 +106,21 @@ const PaymentModal = ({ isOpen, onClose, total }: PaymentModalProps) => {
             >
               <div className="flex flex-col items-center gap-2">
                 <div className="w-16 h-16 flex items-center justify-center">
-                  <img src={eSewaLogo} alt="eSewa" className="max-w-full max-h-full" />
+                  <img src="/lovable-uploads/09072c16-f556-4a2d-b0da-4e05e8720c80.png" alt="eSewa" className="max-w-full max-h-full" />
                 </div>
                 <span className="font-medium">eSewa</span>
               </div>
             </div>
             
             <div 
-              className={`p-4 border rounded-lg cursor-pointer hover:bg-gray-50 transition-colors ${paymentMethod === 'PhonePay' ? 'border-farm-green-dark bg-farm-cream' : 'border-gray-200'}`}
-              onClick={() => setPaymentMethod('PhonePay')}
+              className={`p-4 border rounded-lg cursor-pointer hover:bg-gray-50 transition-colors ${paymentMethod === 'FonePay' ? 'border-farm-green-dark bg-farm-cream' : 'border-gray-200'}`}
+              onClick={() => setPaymentMethod('FonePay')}
             >
               <div className="flex flex-col items-center gap-2">
                 <div className="w-16 h-16 flex items-center justify-center">
-                  <img src={phonePayLogo} alt="PhonePay" className="max-w-full max-h-full" />
+                  <img src="/lovable-uploads/45815cb9-3684-42be-87f4-29fa35851e94.png" alt="Fone Pay" className="max-w-full max-h-full" />
                 </div>
-                <span className="font-medium">PhonePay</span>
+                <span className="font-medium">Fone Pay</span>
               </div>
             </div>
             
@@ -162,13 +159,13 @@ const PaymentModal = ({ isOpen, onClose, total }: PaymentModalProps) => {
             </div>
           )}
 
-          {paymentMethod === 'PhonePay' && (
+          {paymentMethod === 'FonePay' && (
             <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-              <h4 className="font-semibold text-blue-800 mb-2">PhonePay Payment Instructions</h4>
+              <h4 className="font-semibold text-blue-800 mb-2">Fone Pay Payment Instructions</h4>
               <div className="text-sm text-blue-700 space-y-1">
                 <p><strong>Amount:</strong> NPR {total}</p>
                 <p className="mt-2">
-                  Complete your payment through PhonePay and click "Pay Now" to confirm your order.
+                  Complete your payment through Fone Pay and click "Pay Now" to confirm your order.
                 </p>
               </div>
             </div>
