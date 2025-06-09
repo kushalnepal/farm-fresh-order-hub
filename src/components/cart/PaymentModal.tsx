@@ -18,19 +18,66 @@ const PaymentModal = ({ isOpen, onClose, total }: PaymentModalProps) => {
   const [loading, setLoading] = useState(false);
   const { clearCart } = useCart();
 
+  const handleESewaPayment = () => {
+    setLoading(true);
+    
+    // eSewa test configuration
+    const eSewaConfig = {
+      merchantId: 'EPAYTEST',
+      amount: total,
+      productCode: 'EPAYTEST',
+      productServiceCharge: '0',
+      productDeliveryCharge: '0',
+      taxAmount: '0',
+      totalAmount: total,
+      successUrl: `${window.location.origin}/cart?payment=success`,
+      failureUrl: `${window.location.origin}/cart?payment=failed`
+    };
+
+    // Create form and submit to eSewa
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = 'https://uat.esewa.com.np/epay/main';
+    form.target = '_blank';
+
+    // Add form fields
+    Object.entries(eSewaConfig).forEach(([key, value]) => {
+      const input = document.createElement('input');
+      input.type = 'hidden';
+      input.name = key;
+      input.value = value.toString();
+      form.appendChild(input);
+    });
+
+    document.body.appendChild(form);
+    form.submit();
+    document.body.removeChild(form);
+
+    // Show success message and clear cart after a delay
+    setTimeout(() => {
+      toast.success(`Redirected to eSewa for payment of NPR ${total}`);
+      clearCart();
+      onClose();
+      setLoading(false);
+    }, 1000);
+  };
+
   const handlePayment = async () => {
     if (!paymentMethod) {
       toast.error("Please select a payment method");
       return;
     }
 
+    if (paymentMethod === 'eSewa') {
+      handleESewaPayment();
+      return;
+    }
+
     setLoading(true);
 
     try {
-      // Simulate payment processing
+      // Simulate payment processing for other methods
       await new Promise(resolve => setTimeout(resolve, 1500));
-      
-      // In a real app, you would integrate with the actual payment gateway APIs here
       
       toast.success(`Payment of NPR ${total} successful via ${paymentMethod}!`);
       clearCart();
@@ -101,16 +148,15 @@ const PaymentModal = ({ isOpen, onClose, total }: PaymentModalProps) => {
           {/* Payment Instructions */}
           {paymentMethod === 'eSewa' && (
             <div className="mt-4 p-4 bg-green-50 border border-green-200 rounded-lg">
-              <h4 className="font-semibold text-green-800 mb-2">eSewa Payment Instructions</h4>
-              <div className="text-sm text-green-700 space-y-1">
-                <p><strong>Payment Number:</strong> 9803342289</p>
+              <h4 className="font-semibold text-green-800 mb-2">eSewa Payment Gateway</h4>
+              <div className="text-sm text-green-700 space-y-2">
                 <p><strong>Amount:</strong> NPR {total}</p>
-                <p className="mt-2">
-                  1. Open your eSewa app<br/>
-                  2. Send money to: <strong>9803342289</strong><br/>
-                  3. Enter amount: <strong>NPR {total}</strong><br/>
-                  4. Complete the transaction<br/>
-                  5. Click "Pay Now" below to confirm your order
+                <p className="text-xs bg-green-100 p-2 rounded">
+                  <strong>Test Mode:</strong> Use test credentials<br/>
+                  eSewa ID: 9806800001, Password: Nepal@123
+                </p>
+                <p>
+                  Click "Pay with eSewa" to redirect to eSewa payment gateway where you can complete your payment securely.
                 </p>
               </div>
             </div>
@@ -148,7 +194,7 @@ const PaymentModal = ({ isOpen, onClose, total }: PaymentModalProps) => {
             disabled={loading || !paymentMethod}
             className="bg-farm-green-dark hover:bg-farm-green-light"
           >
-            {loading ? "Processing..." : "Pay Now"}
+            {loading ? "Processing..." : paymentMethod === 'eSewa' ? "Pay with eSewa" : "Pay Now"}
           </Button>
         </DialogFooter>
       </DialogContent>
