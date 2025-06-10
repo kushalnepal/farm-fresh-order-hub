@@ -133,13 +133,13 @@ const Products = () => {
             <div className="bg-white rounded-lg border border-gray-100 p-6 sticky top-24">
               <div className="mb-6">
                 <label htmlFor="search" className="block text-sm font-medium mb-2">
-                  Fuzzy Search Products
+                  Search Products
                 </label>
                 <div className="relative">
                   <input
                     type="text"
                     id="search"
-                    placeholder="Try 'chiken' or 'veggie'..."
+                    placeholder="Search for products..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-farm-green-dark focus:border-farm-green-dark"
@@ -147,7 +147,7 @@ const Products = () => {
                   <Search className="absolute left-3 top-2.5 text-gray-400" size={18} />
                 </div>
                 <p className="text-xs text-gray-500 mt-1">
-                  Smart search finds products even with typos!
+                  Find products by name, category, or description
                 </p>
               </div>
               
