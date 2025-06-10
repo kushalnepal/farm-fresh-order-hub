@@ -4,6 +4,7 @@ import { Layout } from "@/components/layout/Layout";
 import ProductCard, { Product } from "@/components/products/ProductCard";
 import CategoryFilter from "@/components/products/CategoryFilter";
 import { Search } from "lucide-react";
+import { useFuzzySearch } from "@/hooks/useFuzzySearch";
 
 // Sample product data with images
 const defaultProductImages = [
@@ -100,13 +101,18 @@ const Products = () => {
     new Set(productsList.map((product) => product.category))
   );
 
-  // Filter products based on category and search query
-  const filteredProducts = productsList.filter((product) => {
-    const matchesCategory = activeCategory === "All" || product.category === activeCategory;
-    const matchesSearch = product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         product.description.toLowerCase().includes(searchQuery.toLowerCase());
-    return matchesCategory && matchesSearch;
+  // Filter by category first
+  const categoryFilteredProducts = productsList.filter((product) => {
+    return activeCategory === "All" || product.category === activeCategory;
   });
+
+  // Apply fuzzy search to category-filtered products
+  const { results: searchResults } = useFuzzySearch(categoryFilteredProducts, searchQuery, {
+    threshold: 0.3, // More lenient matching
+    keys: ['name', 'description', 'category']
+  });
+
+  const filteredProducts = searchResults;
 
   return (
     <Layout>
@@ -126,18 +132,23 @@ const Products = () => {
           <div className="md:w-1/4">
             <div className="bg-white rounded-lg border border-gray-100 p-6 sticky top-24">
               <div className="mb-6">
-                <label htmlFor="search" className="block text-sm font-medium mb-2">Search Products</label>
+                <label htmlFor="search" className="block text-sm font-medium mb-2">
+                  Fuzzy Search Products
+                </label>
                 <div className="relative">
                   <input
                     type="text"
                     id="search"
-                    placeholder="Search..."
+                    placeholder="Try 'chiken' or 'veggie'..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-farm-green-dark focus:border-farm-green-dark"
                   />
                   <Search className="absolute left-3 top-2.5 text-gray-400" size={18} />
                 </div>
+                <p className="text-xs text-gray-500 mt-1">
+                  Smart search finds products even with typos!
+                </p>
               </div>
               
               <CategoryFilter
