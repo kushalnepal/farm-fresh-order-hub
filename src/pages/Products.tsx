@@ -106,13 +106,17 @@ const Products = () => {
     return activeCategory === "All" || product.category === activeCategory;
   });
 
-  // Apply fuzzy search to category-filtered products
+  // Apply fuzzy search to category-filtered products with more lenient settings
   const { results: searchResults } = useFuzzySearch(categoryFilteredProducts, searchQuery, {
-    threshold: 0.3, // More lenient matching
+    threshold: 0.6, // More lenient - allows more typos
     keys: ['name', 'description', 'category']
   });
 
   const filteredProducts = searchResults;
+
+  console.log('Search query:', searchQuery);
+  console.log('Category filtered products:', categoryFilteredProducts.length);
+  console.log('Final filtered products:', filteredProducts.length);
 
   return (
     <Layout>
@@ -139,7 +143,7 @@ const Products = () => {
                   <input
                     type="text"
                     id="search"
-                    placeholder="Search for products..."
+                    placeholder="Try 'chiken', 'veggie', or 'gras'..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-farm-green-dark focus:border-farm-green-dark"
@@ -147,7 +151,7 @@ const Products = () => {
                   <Search className="absolute left-3 top-2.5 text-gray-400" size={18} />
                 </div>
                 <p className="text-xs text-gray-500 mt-1">
-                  Find products by name, category, or description
+                  Fuzzy search finds products even with typos!
                 </p>
               </div>
               
@@ -165,6 +169,11 @@ const Products = () => {
               <div className="text-center py-16">
                 <h3 className="text-xl font-medium mb-2">No products found</h3>
                 <p className="text-gray-600">Try adjusting your filters or search query.</p>
+                {searchQuery && (
+                  <p className="text-sm text-gray-500 mt-2">
+                    Searched for: "{searchQuery}" in {categoryFilteredProducts.length} products
+                  </p>
+                )}
               </div>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">

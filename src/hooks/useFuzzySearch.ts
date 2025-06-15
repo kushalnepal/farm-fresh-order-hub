@@ -15,7 +15,7 @@ export const useFuzzySearch = (
   options: UseFuzzySearchOptions = {}
 ) => {
   const {
-    threshold = 0.4, // Lower = more strict matching
+    threshold = 0.6, // More lenient matching (0 = perfect match, 1 = match anything)
     keys = ['name', 'description', 'category'],
     includeScore = false
   } = options;
@@ -27,17 +27,28 @@ export const useFuzzySearch = (
       includeScore,
       ignoreLocation: true,
       findAllMatches: true,
-      minMatchCharLength: 2,
+      minMatchCharLength: 1, // Allow single character matches
+      includeMatches: true,
+      shouldSort: true,
     });
   }, [items, threshold, includeScore]);
 
   const searchResults = useMemo(() => {
     if (!searchQuery.trim()) {
+      console.log('No search query, returning all items:', items.length);
       return items;
     }
 
+    console.log('Searching for:', searchQuery);
+    console.log('Available items:', items.map(item => item.name));
+    
     const results = fuse.search(searchQuery);
-    return results.map(result => result.item);
+    console.log('Fuse search results:', results);
+    
+    const mappedResults = results.map(result => result.item);
+    console.log('Mapped results:', mappedResults.map(item => item.name));
+    
+    return mappedResults;
   }, [fuse, searchQuery, items]);
 
   return {
