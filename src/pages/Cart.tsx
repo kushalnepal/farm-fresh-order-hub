@@ -3,12 +3,69 @@ import { Layout } from "@/components/layout/Layout";
 import { useCart } from "@/context/CartContext";
 import { Button } from "@/components/ui/button";
 import { Minus, Plus, Trash2, CreditCard } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import PaymentModal from "@/components/cart/PaymentModal";
+import RecommendedProducts from "@/components/cart/RecommendedProducts";
+import { useCollaborativeFiltering } from "@/hooks/useCollaborativeFiltering";
+import { Product } from "@/components/products/ProductCard";
 
 const Cart = () => {
   const { items, removeFromCart, updateQuantity, getCartTotal, clearCart } = useCart();
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
+  const [allProducts, setAllProducts] = useState<Product[]>([]);
+
+  // Load all products for collaborative filtering
+  useEffect(() => {
+    const savedProducts = localStorage.getItem('farmfresh_products');
+    if (savedProducts) {
+      const adminProducts = JSON.parse(savedProducts);
+      const displayProducts: Product[] = adminProducts
+        .filter((product: any) => product.inStock)
+        .map((product: any, index: number) => ({
+          id: parseInt(product.id),
+          name: product.name,
+          image: `https://images.unsplash.com/photo-${1607305387299 + index}?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80`,
+          category: product.category,
+          description: product.description,
+          price: product.price,
+          onSale: product.onSale || false,
+          salePrice: product.salePrice
+        }));
+      setAllProducts(displayProducts);
+    } else {
+      // Default products
+      const defaultProducts: Product[] = [
+        {
+          id: 1,
+          name: "Fresh Organic Vegetables",
+          image: "https://images.unsplash.com/photo-1607305387299-a3d9611cd469?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80",
+          category: "Vegetables",
+          description: "Farm-fresh, pesticide-free vegetables harvested daily.",
+          price: 250,
+        },
+        {
+          id: 2,
+          name: "Free-Range Chicken",
+          image: "https://images.unsplash.com/photo-1518492104633-130d0cc84637?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80",
+          category: "Chicken",
+          description: "Naturally raised free-range chicken without antibiotics.",
+          price: 550,
+        },
+        {
+          id: 3,
+          name: "Premium Cattle Grass",
+          image: "https://images.unsplash.com/photo-1500382017468-9049fed747ef?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80",
+          category: "Grass",
+          description: "High-quality grass feed for healthy cattle growth.",
+          price: 180,
+        },
+      ];
+      setAllProducts(defaultProducts);
+    }
+  }, []);
+
+  // Get collaborative filtering recommendations
+  const { recommendations } = useCollaborativeFiltering(items, allProducts);
 
   // Calculate cart total
   const cartTotal = getCartTotal();
@@ -20,7 +77,7 @@ const Cart = () => {
         <div className="container-custom">
           <h1 className="text-3xl md:text-4xl font-bold mb-4">Your Cart</h1>
           <p className="text-gray-600 max-w-2xl mb-8">
-            Review your selected items and proceed to checkout.
+            Review your selected items and proceed to checkout. Cart optimized with greedy algorithms and hash map deduplication.
           </p>
         </div>
       </section>
@@ -95,6 +152,9 @@ const Cart = () => {
                   </Button>
                 </div>
               </div>
+
+              {/* Collaborative Filtering Recommendations */}
+              <RecommendedProducts products={recommendations} />
             </div>
             
             <div className="md:col-span-4">
@@ -126,6 +186,16 @@ const Cart = () => {
                     <CreditCard className="mr-2" size={18} />
                     Proceed to Payment
                   </Button>
+                </div>
+
+                {/* Algorithm Info */}
+                <div className="mt-6 p-3 bg-gray-50 rounded-md">
+                  <h4 className="text-sm font-medium mb-2">Cart Optimization</h4>
+                  <ul className="text-xs text-gray-600 space-y-1">
+                    <li>✓ Greedy algorithm for value efficiency</li>
+                    <li>✓ Hash map deduplication (O(1) lookups)</li>
+                    <li>✓ Collaborative filtering recommendations</li>
+                  </ul>
                 </div>
               </div>
             </div>
