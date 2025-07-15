@@ -9,6 +9,37 @@ interface UseFuzzySearchOptions {
   includeScore?: boolean;
 }
 
+// Calculate Levenshtein distance for better typo handling
+const levenshteinDistance = (str1: string, str2: string): number => {
+  const matrix = [];
+  const len1 = str1.length;
+  const len2 = str2.length;
+
+  for (let i = 0; i <= len2; i++) {
+    matrix[i] = [i];
+  }
+
+  for (let j = 0; j <= len1; j++) {
+    matrix[0][j] = j;
+  }
+
+  for (let i = 1; i <= len2; i++) {
+    for (let j = 1; j <= len1; j++) {
+      if (str2.charAt(i - 1) === str1.charAt(j - 1)) {
+        matrix[i][j] = matrix[i - 1][j - 1];
+      } else {
+        matrix[i][j] = Math.min(
+          matrix[i - 1][j - 1] + 1,
+          matrix[i][j - 1] + 1,
+          matrix[i - 1][j] + 1
+        );
+      }
+    }
+  }
+
+  return matrix[len2][len1];
+};
+
 export const useFuzzySearch = (
   items: Product[], 
   searchQuery: string,
@@ -28,98 +59,64 @@ export const useFuzzySearch = (
 
     const trimmedQuery = searchQuery.trim().toLowerCase();
     console.log('Searching for:', trimmedQuery);
-    console.log('Available items:', items.map(item => item.name));
     
-    // For specific product searches (like "tomato"), prioritize name matches heavily
-    const isSpecificProductSearch = trimmedQuery.length > 2 && !trimmedQuery.includes(' ');
-    
+    // First try standard Fuse.js search with lenient settings
     const fuseConfig = {
-      keys: isSpecificProductSearch 
-        ? [
-            { name: 'name', weight: 10 }, // Heavy weight on name for specific searches
-            { name: 'description', weight: 2 },
-            { name: 'category', weight: 0.1 } // Very low weight on category
-          ]
-        : [
-            { name: 'name', weight: 3 },
-            { name: 'description', weight: 1 },
-            { name: 'category', weight: 1 }
-          ],
-      threshold: isSpecificProductSearch ? 0.6 : threshold, // More lenient for typos
+      keys: [
+        { name: 'name', weight: 0.8 },
+        { name: 'description', weight: 0.2 },
+        { name: 'category', weight: 0.1 }
+      ],
+      threshold: 0.7, // Very lenient
       includeScore,
       ignoreLocation: true,
       findAllMatches: true,
       minMatchCharLength: 1,
       includeMatches: true,
       shouldSort: true,
-      distance: isSpecificProductSearch ? 100 : 100, // Allow more distance for typos
-      useExtendedSearch: true,
+      distance: 200,
+      useExtendedSearch: false,
     };
 
     const fuse = new Fuse(items, fuseConfig);
-    
-    // First try fuzzy search
     let results = fuse.search(trimmedQuery);
     
-    // If we're searching for a specific product and got results,
-    // filter to prioritize name matches but don't be too strict
-    if (isSpecificProductSearch && results.length > 0) {
-      const nameMatchResults = results.filter(result => {
-        const itemName = result.item.name.toLowerCase();
-        // More lenient matching - check if most characters are present
-        const queryChars = trimmedQuery.split('');
-        const matchingChars = queryChars.filter(char => itemName.includes(char));
-        return matchingChars.length >= Math.floor(queryChars.length * 0.6); // 60% character match
+    console.log('Fuse results:', results.length);
+    
+    // If Fuse didn't find results, try custom typo-tolerant matching
+    if (results.length === 0) {
+      console.log('No Fuse results, trying typo-tolerant search...');
+      
+      const typoMatches = items.filter(item => {
+        const itemName = item.name.toLowerCase();
+        
+        // Check exact substring match first
+        if (itemName.includes(trimmedQuery)) {
+          return true;
+        }
+        
+        // Check if query is a typo of the item name
+        const maxDistance = Math.floor(Math.max(trimmedQuery.length, itemName.length) * 0.4);
+        const distance = levenshteinDistance(trimmedQuery, itemName);
+        
+        if (distance <= maxDistance) {
+          return true;
+        }
+        
+        // Check if query matches beginning of words
+        const words = itemName.split(' ');
+        return words.some(word => {
+          const wordDistance = levenshteinDistance(trimmedQuery, word);
+          return wordDistance <= Math.floor(word.length * 0.4);
+        });
       });
       
-      if (nameMatchResults.length > 0) {
-        results = nameMatchResults;
-      }
+      console.log('Typo matches found:', typoMatches.map(item => item.name));
+      return typoMatches;
     }
-    
-    // If no results with current threshold, try with more lenient threshold
-    if (results.length === 0) {
-      console.log('No results with current threshold, trying lenient search...');
-      const lenientFuse = new Fuse(items, {
-        keys: isSpecificProductSearch 
-          ? [{ name: 'name', weight: 10 }] // Only search names for specific searches
-          : keys.map(key => ({ name: key, weight: key === 'name' ? 3 : 1 })),
-        threshold: 0.8, // Very lenient
-        ignoreLocation: true,
-        findAllMatches: true,
-        minMatchCharLength: 1,
-        includeMatches: true,
-        shouldSort: true,
-        distance: 200,
-      });
-      results = lenientFuse.search(trimmedQuery);
-    }
-    
-    // If still no results, try character-based matching
-    if (results.length === 0) {
-      console.log('Still no results, trying character-based matching...');
-      const partialMatches = items.filter(item => {
-        if (isSpecificProductSearch) {
-          // For specific searches, use character similarity
-          const itemName = item.name.toLowerCase();
-          const queryChars = trimmedQuery.split('');
-          const matchingChars = queryChars.filter(char => itemName.includes(char));
-          // Match if at least 60% of characters are present
-          return matchingChars.length >= Math.floor(queryChars.length * 0.6);
-        } else {
-          // For general searches, match all fields
-          const searchText = `${item.name} ${item.description} ${item.category}`.toLowerCase();
-          return searchText.includes(trimmedQuery);
-        }
-      });
-      console.log('Character-based matches found:', partialMatches.map(item => item.name));
-      return partialMatches;
-    }
-    
-    console.log('Fuse search results:', results.length);
     
     const mappedResults = results.map(result => result.item);
-    console.log('Mapped results:', mappedResults.map(item => item.name));
+    console.log('Final results:', mappedResults.map(item => item.name));
     
     return mappedResults;
   }, [searchQuery, items, keys, threshold, includeScore]);
