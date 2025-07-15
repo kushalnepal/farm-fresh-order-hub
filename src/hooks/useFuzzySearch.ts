@@ -45,28 +45,31 @@ export const useFuzzySearch = (
             { name: 'description', weight: 1 },
             { name: 'category', weight: 1 }
           ],
-      threshold: isSpecificProductSearch ? 0.3 : threshold, // Stricter for specific searches
+      threshold: isSpecificProductSearch ? 0.6 : threshold, // More lenient for typos
       includeScore,
       ignoreLocation: true,
       findAllMatches: true,
       minMatchCharLength: 1,
       includeMatches: true,
       shouldSort: true,
-      distance: isSpecificProductSearch ? 50 : 100, // Shorter distance for specific searches
+      distance: isSpecificProductSearch ? 100 : 100, // Allow more distance for typos
       useExtendedSearch: true,
     };
 
     const fuse = new Fuse(items, fuseConfig);
     
-    // First try exact fuzzy search
+    // First try fuzzy search
     let results = fuse.search(trimmedQuery);
     
-    // If we're searching for a specific product and got too many results,
-    // filter to only include items where the name closely matches
+    // If we're searching for a specific product and got results,
+    // filter to prioritize name matches but don't be too strict
     if (isSpecificProductSearch && results.length > 0) {
       const nameMatchResults = results.filter(result => {
         const itemName = result.item.name.toLowerCase();
-        return itemName.includes(trimmedQuery) || trimmedQuery.includes(itemName.split(' ')[0]);
+        // More lenient matching - check if most characters are present
+        const queryChars = trimmedQuery.split('');
+        const matchingChars = queryChars.filter(char => itemName.includes(char));
+        return matchingChars.length >= Math.floor(queryChars.length * 0.6); // 60% character match
       });
       
       if (nameMatchResults.length > 0) {
@@ -74,12 +77,14 @@ export const useFuzzySearch = (
       }
     }
     
-    // If no results with current threshold, try with more lenient threshold only for general searches
-    if (results.length === 0 && !isSpecificProductSearch) {
+    // If no results with current threshold, try with more lenient threshold
+    if (results.length === 0) {
       console.log('No results with current threshold, trying lenient search...');
       const lenientFuse = new Fuse(items, {
-        keys: keys.map(key => ({ name: key, weight: key === 'name' ? 3 : 1 })),
-        threshold: 0.8,
+        keys: isSpecificProductSearch 
+          ? [{ name: 'name', weight: 10 }] // Only search names for specific searches
+          : keys.map(key => ({ name: key, weight: key === 'name' ? 3 : 1 })),
+        threshold: 0.8, // Very lenient
         ignoreLocation: true,
         findAllMatches: true,
         minMatchCharLength: 1,
@@ -90,20 +95,24 @@ export const useFuzzySearch = (
       results = lenientFuse.search(trimmedQuery);
     }
     
-    // If still no results, try partial matching
+    // If still no results, try character-based matching
     if (results.length === 0) {
-      console.log('Still no results, trying partial matching...');
+      console.log('Still no results, trying character-based matching...');
       const partialMatches = items.filter(item => {
         if (isSpecificProductSearch) {
-          // For specific searches, only match names
-          return item.name.toLowerCase().includes(trimmedQuery);
+          // For specific searches, use character similarity
+          const itemName = item.name.toLowerCase();
+          const queryChars = trimmedQuery.split('');
+          const matchingChars = queryChars.filter(char => itemName.includes(char));
+          // Match if at least 60% of characters are present
+          return matchingChars.length >= Math.floor(queryChars.length * 0.6);
         } else {
           // For general searches, match all fields
           const searchText = `${item.name} ${item.description} ${item.category}`.toLowerCase();
           return searchText.includes(trimmedQuery);
         }
       });
-      console.log('Partial matches found:', partialMatches.map(item => item.name));
+      console.log('Character-based matches found:', partialMatches.map(item => item.name));
       return partialMatches;
     }
     
