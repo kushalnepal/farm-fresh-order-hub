@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Layout } from "@/components/layout/Layout";
 import ProductCard, { Product } from "@/components/products/ProductCard";
@@ -106,9 +105,9 @@ const Products = () => {
     return activeCategory === "All" || product.category === activeCategory;
   });
 
-  // Apply fuzzy search to category-filtered products with more lenient settings
+  // Apply fuzzy search to category-filtered products with improved settings
   const { results: searchResults } = useFuzzySearch(categoryFilteredProducts, searchQuery, {
-    threshold: 0.6, // More lenient - allows more typos
+    threshold: 0.4, // More lenient threshold
     keys: ['name', 'description', 'category']
   });
 
@@ -143,7 +142,7 @@ const Products = () => {
                   <input
                     type="text"
                     id="search"
-                    placeholder="Try 'chiken', 'veggie', or 'gras'..."
+                    placeholder="Try 'tomato', 'chicken', 'grass'..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-farm-green-dark focus:border-farm-green-dark"
@@ -151,7 +150,7 @@ const Products = () => {
                   <Search className="absolute left-3 top-2.5 text-gray-400" size={18} />
                 </div>
                 <p className="text-xs text-gray-500 mt-1">
-                  Fuzzy search finds products even with typos!
+                  Smart search - finds products even with typos and partial matches!
                 </p>
               </div>
               
@@ -168,11 +167,19 @@ const Products = () => {
             {filteredProducts.length === 0 ? (
               <div className="text-center py-16">
                 <h3 className="text-xl font-medium mb-2">No products found</h3>
-                <p className="text-gray-600">Try adjusting your filters or search query.</p>
+                <p className="text-gray-600">Try a different search term or browse all categories.</p>
                 {searchQuery && (
-                  <p className="text-sm text-gray-500 mt-2">
-                    Searched for: "{searchQuery}" in {categoryFilteredProducts.length} products
-                  </p>
+                  <div className="mt-4 space-y-2">
+                    <p className="text-sm text-gray-500">
+                      Searched for: "{searchQuery}" in {categoryFilteredProducts.length} products
+                    </p>
+                    <button
+                      onClick={() => setSearchQuery('')}
+                      className="text-farm-green-dark hover:underline text-sm"
+                    >
+                      Clear search
+                    </button>
+                  </div>
                 )}
               </div>
             ) : (
