@@ -5,13 +5,33 @@ import CategoryFilter from "@/components/products/CategoryFilter";
 import { Search } from "lucide-react";
 import { useFuzzySearch } from "@/hooks/useFuzzySearch";
 
-// Sample product data with images
-const defaultProductImages = [
-  "https://images.unsplash.com/photo-1607305387299-a3d9611cd469?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80",
-  "https://images.unsplash.com/photo-1566385101042-1a0aa0c1268c?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1632&q=80",
-  "https://images.unsplash.com/photo-1618507358569-a2966b490e5b?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1734&q=80",
-  "https://images.unsplash.com/photo-1582722872445-44dc5f7e3c8f?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1740&q=80"
-];
+// Product name to image mapping for proper image assignment
+const getProductImage = (productName: string) => {
+  const imageMap: { [key: string]: string } = {
+    'Organic Tomatoes': 'https://images.unsplash.com/photo-1518977676601-b53f82aba655?w=400',
+    'Bell Peppers': 'https://images.unsplash.com/photo-1563565375-f3fdfdbefa83?w=400',
+    'Fresh Radish': 'https://images.unsplash.com/photo-1518373714866-3f1478910cc0?w=400',
+    'Free-Range Chicken': 'https://images.unsplash.com/photo-1548550023-2bdb3c5beed7?w=400',
+    'Premium Cattle Grass': 'https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=400',
+    'Fresh Carrots': 'https://images.unsplash.com/photo-1445282768818-728615cc910a?w=400',
+    'Organic Potatoes': 'https://images.unsplash.com/photo-1518977676601-b53f82aba655?w=400',
+    'Green Spinach': 'https://images.unsplash.com/photo-1576045057995-568f588f82fb?w=400',
+    'Farm Fresh Eggs': 'https://images.unsplash.com/photo-1518492104633-130d0cc84637?w=400',
+    'Organic Broccoli': 'https://images.unsplash.com/photo-1459411621453-7b03977f4bfc?w=400',
+    'Sweet Corn': 'https://images.unsplash.com/photo-1551754655-cd27e38d2076?w=400',
+    'Fresh Cucumbers': 'https://images.unsplash.com/photo-1567306301408-9b74779a11af?w=400',
+    'Red Onions': 'https://images.unsplash.com/photo-1518373714866-3f1478910cc0?w=400',
+    'Green Lettuce': 'https://images.unsplash.com/photo-1622206151226-18ca2c9ab4a1?w=400',
+    'Fresh Cabbage': 'https://images.unsplash.com/photo-1594282486552-05b4d80fbb9f?w=400',
+    'Garden Peas': 'https://images.unsplash.com/photo-1587735243615-c03f25aaff15?w=400',
+    'Fresh Cauliflower': 'https://images.unsplash.com/photo-1510627489930-0c1b0e63aa14?w=400',
+    'Organic Beetroot': 'https://images.unsplash.com/photo-1515543904379-3d0e229be1f7?w=400',
+    'Fresh Ginger': 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400',
+    'Green Beans': 'https://images.unsplash.com/photo-1506617420156-8e4536971650?w=400'
+  };
+  
+  return imageMap[productName] || 'https://images.unsplash.com/photo-1540420773420-3366772f4999?w=400';
+};
 
 const Products = () => {
   const [activeCategory, setActiveCategory] = useState("All");
@@ -24,18 +44,18 @@ const Products = () => {
     if (savedProducts) {
       const adminProducts = JSON.parse(savedProducts);
       // Convert admin products to display products with images
-      const displayProducts: Product[] = adminProducts
-        .filter((product: any) => product.inStock) // Only show in-stock products
-        .map((product: any, index: number) => ({
-          id: parseInt(product.id),
-          name: product.name,
-          image: product.image || defaultProductImages[index % defaultProductImages.length],
-          category: product.category,
-          description: product.description,
-          price: product.price,
-          onSale: product.onSale || false,
-          salePrice: product.salePrice
-        }));
+        const displayProducts: Product[] = adminProducts
+          .filter((product: any) => product.inStock) // Only show in-stock products
+          .map((product: any) => ({
+            id: parseInt(product.id),
+            name: product.name,
+            image: product.image || getProductImage(product.name),
+            category: product.category,
+            description: product.description,
+            price: product.price,
+            onSale: product.onSale || false,
+            salePrice: product.salePrice
+          }));
       setProductsList(displayProducts);
     } else {
       // Fallback to default products if no admin products exist
@@ -77,10 +97,10 @@ const Products = () => {
         const adminProducts = JSON.parse(savedProducts);
         const displayProducts: Product[] = adminProducts
           .filter((product: any) => product.inStock)
-          .map((product: any, index: number) => ({
+          .map((product: any) => ({
             id: parseInt(product.id),
             name: product.name,
-            image: product.image || defaultProductImages[index % defaultProductImages.length],
+            image: product.image || getProductImage(product.name),
             category: product.category,
             description: product.description,
             price: product.price,
