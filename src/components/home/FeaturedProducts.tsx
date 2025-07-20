@@ -4,20 +4,20 @@ import { ArrowRight, ShoppingCart } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import { Product } from "@/components/products/ProductCard";
 
-// Sample product data
+// Featured product data with correct images
 const featuredProducts: Product[] = [
   {
     id: 1,
-    name: "Fresh Organic Vegetables",
-    image: "https://images.unsplash.com/photo-1607305387299-a3d9611cd469?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80",
+    name: "Organic Tomatoes",
+    image: "https://images.unsplash.com/photo-1518977676601-b53f82aba655?w=400",
     category: "Vegetables",
-    description: "Farm-fresh, pesticide-free vegetables harvested daily.",
-    price: 250,
+    description: "Fresh organic red tomatoes from our farm.",
+    price: 150,
   },
   {
     id: 2,
     name: "Free-Range Chicken",
-    image: "https://images.unsplash.com/photo-1518492104633-130d0cc84637?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1074&q=80",
+    image: "https://images.unsplash.com/photo-1518492104633-130d0cc84637?w=400",
     category: "Chicken",
     description: "Naturally raised free-range chicken without antibiotics.",
     price: 550,
@@ -25,7 +25,7 @@ const featuredProducts: Product[] = [
   {
     id: 3,
     name: "Premium Cattle Grass",
-    image: "https://images.unsplash.com/photo-1500382017468-9049fed747ef?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1632&q=80",
+    image: "https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=400",
     category: "Grass",
     description: "High-quality grass feed for healthy cattle growth.",
     price: 180,

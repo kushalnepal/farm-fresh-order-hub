@@ -29,7 +29,7 @@ const Products = () => {
         .map((product: any, index: number) => ({
           id: parseInt(product.id),
           name: product.name,
-          image: defaultProductImages[index % defaultProductImages.length],
+          image: product.image || defaultProductImages[index % defaultProductImages.length],
           category: product.category,
           description: product.description,
           price: product.price,
@@ -42,16 +42,16 @@ const Products = () => {
       const defaultProducts: Product[] = [
         {
           id: 1,
-          name: "Fresh Organic Vegetables",
-          image: defaultProductImages[0],
+          name: "Organic Tomatoes",
+          image: "https://images.unsplash.com/photo-1518977676601-b53f82aba655?w=400",
           category: "Vegetables",
-          description: "Farm-fresh, pesticide-free vegetables harvested daily.",
-          price: 250,
+          description: "Fresh organic red tomatoes from our farm.",
+          price: 150,
         },
         {
           id: 2,
           name: "Free-Range Chicken",
-          image: "https://images.unsplash.com/photo-1518492104633-130d0cc84637?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1074&q=80",
+          image: "https://images.unsplash.com/photo-1518492104633-130d0cc84637?w=400",
           category: "Chicken",
           description: "Naturally raised free-range chicken without antibiotics.",
           price: 550,
@@ -59,7 +59,7 @@ const Products = () => {
         {
           id: 3,
           name: "Premium Cattle Grass",
-          image: "https://images.unsplash.com/photo-1500382017468-9049fed747ef?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1632&q=80",
+          image: "https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=400",
           category: "Grass",
           description: "High-quality grass feed for healthy cattle growth.",
           price: 180,
@@ -80,7 +80,7 @@ const Products = () => {
           .map((product: any, index: number) => ({
             id: parseInt(product.id),
             name: product.name,
-            image: defaultProductImages[index % defaultProductImages.length],
+            image: product.image || defaultProductImages[index % defaultProductImages.length],
             category: product.category,
             description: product.description,
             price: product.price,

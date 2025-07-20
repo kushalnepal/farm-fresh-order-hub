@@ -24,7 +24,7 @@ const Cart = () => {
         .map((product: any, index: number) => ({
           id: parseInt(product.id),
           name: product.name,
-          image: `https://images.unsplash.com/photo-${1607305387299 + index}?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80`,
+          image: product.image || `https://images.unsplash.com/photo-1518977676601-b53f82aba655?w=400`,
           category: product.category,
           description: product.description,
           price: product.price,
@@ -33,20 +33,20 @@ const Cart = () => {
         }));
       setAllProducts(displayProducts);
     } else {
-      // Default products
+      // Default products with correct images
       const defaultProducts: Product[] = [
         {
           id: 1,
-          name: "Fresh Organic Vegetables",
-          image: "https://images.unsplash.com/photo-1607305387299-a3d9611cd469?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80",
+          name: "Organic Tomatoes",
+          image: "https://images.unsplash.com/photo-1518977676601-b53f82aba655?w=400",
           category: "Vegetables",
-          description: "Farm-fresh, pesticide-free vegetables harvested daily.",
-          price: 250,
+          description: "Fresh organic red tomatoes from our farm.",
+          price: 150,
         },
         {
           id: 2,
           name: "Free-Range Chicken",
-          image: "https://images.unsplash.com/photo-1518492104633-130d0cc84637?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80",
+          image: "https://images.unsplash.com/photo-1518492104633-130d0cc84637?w=400",
           category: "Chicken",
           description: "Naturally raised free-range chicken without antibiotics.",
           price: 550,
@@ -54,7 +54,7 @@ const Cart = () => {
         {
           id: 3,
           name: "Premium Cattle Grass",
-          image: "https://images.unsplash.com/photo-1500382017468-9049fed747ef?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80",
+          image: "https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=400",
           category: "Grass",
           description: "High-quality grass feed for healthy cattle growth.",
           price: 180,

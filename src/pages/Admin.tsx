@@ -74,13 +74,14 @@ const Admin = () => {
     if (savedProducts) {
       setProducts(JSON.parse(savedProducts));
     } else {
-      // Initialize with some default products including vegetables
+      // Initialize with comprehensive product catalog
       const defaultProducts: Product[] = [
+        // Vegetables
         {
           id: '1',
           name: 'Organic Tomatoes',
           price: 150,
-          description: 'Fresh organic tomatoes from our farm',
+          description: 'Fresh organic red tomatoes from our farm',
           category: 'Vegetables',
           inStock: true,
           onSale: false,
@@ -110,11 +111,173 @@ const Admin = () => {
           id: '4',
           name: 'Bell Peppers',
           price: 200,
-          description: 'Colorful bell peppers',
+          description: 'Colorful fresh bell peppers',
           category: 'Vegetables',
           inStock: true,
           onSale: false,
-          image: 'https://images.unsplash.com/photo-1563565375-f3fdfdbefa83?w=400'
+          image: 'https://images.unsplash.com/photo-1601004890684-d8cbf643f5f2?w=400'
+        },
+        {
+          id: '5',
+          name: 'Fresh Radish',
+          price: 90,
+          description: 'Crisp red radishes with fresh green tops',
+          category: 'Vegetables',
+          inStock: true,
+          onSale: false,
+          image: 'https://images.unsplash.com/photo-1598170845058-32b9d6a5da37?w=400'
+        },
+        {
+          id: '6',
+          name: 'Fresh Spinach',
+          price: 110,
+          description: 'Tender organic spinach leaves',
+          category: 'Vegetables',
+          inStock: true,
+          onSale: false,
+          image: 'https://images.unsplash.com/photo-1576045057995-568f588f82fb?w=400'
+        },
+        {
+          id: '7',
+          name: 'Broccoli',
+          price: 180,
+          description: 'Fresh green broccoli crowns',
+          category: 'Vegetables',
+          inStock: true,
+          onSale: false,
+          image: 'https://images.unsplash.com/photo-1459411621453-7b03977f4bfc?w=400'
+        },
+        {
+          id: '8',
+          name: 'Cauliflower',
+          price: 160,
+          description: 'Fresh white cauliflower heads',
+          category: 'Vegetables',
+          inStock: true,
+          onSale: false,
+          image: 'https://images.unsplash.com/photo-1568584711271-ca2030bf7e50?w=400'
+        },
+        {
+          id: '9',
+          name: 'Green Beans',
+          price: 140,
+          description: 'Tender fresh green beans',
+          category: 'Vegetables',
+          inStock: true,
+          onSale: false,
+          image: 'https://images.unsplash.com/photo-1506830023786-9daf2c2c01c5?w=400'
+        },
+        {
+          id: '10',
+          name: 'Fresh Corn',
+          price: 100,
+          description: 'Sweet yellow corn on the cob',
+          category: 'Vegetables',
+          inStock: true,
+          onSale: false,
+          image: 'https://images.unsplash.com/photo-1551754655-cd27e38d2076?w=400'
+        },
+        {
+          id: '11',
+          name: 'Onions',
+          price: 60,
+          description: 'Fresh red and yellow onions',
+          category: 'Vegetables',
+          inStock: true,
+          onSale: false,
+          image: 'https://images.unsplash.com/photo-1598637816726-df8b3d32b139?w=400'
+        },
+        {
+          id: '12',
+          name: 'Potatoes',
+          price: 80,
+          description: 'Farm-fresh potatoes',
+          category: 'Vegetables',
+          inStock: true,
+          onSale: false,
+          image: 'https://images.unsplash.com/photo-1518977676601-b53f82aba655?w=400'
+        },
+        // Chicken Products
+        {
+          id: '13',
+          name: 'Free-Range Chicken',
+          price: 550,
+          description: 'Naturally raised free-range whole chicken',
+          category: 'Chicken',
+          inStock: true,
+          onSale: false,
+          image: 'https://images.unsplash.com/photo-1518492104633-130d0cc84637?w=400'
+        },
+        {
+          id: '14',
+          name: 'Chicken Breast',
+          price: 650,
+          description: 'Premium free-range chicken breast',
+          category: 'Chicken',
+          inStock: true,
+          onSale: false,
+          image: 'https://images.unsplash.com/photo-1604503468506-a8da13d82791?w=400'
+        },
+        {
+          id: '15',
+          name: 'Chicken Thighs',
+          price: 450,
+          description: 'Juicy free-range chicken thighs',
+          category: 'Chicken',
+          inStock: true,
+          onSale: false,
+          image: 'https://images.unsplash.com/photo-1587593810167-a84920ea0781?w=400'
+        },
+        {
+          id: '16',
+          name: 'Fresh Eggs',
+          price: 200,
+          description: 'Farm-fresh free-range eggs',
+          category: 'Chicken',
+          inStock: true,
+          onSale: false,
+          image: 'https://images.unsplash.com/photo-1518304228744-b0e847f7fd3a?w=400'
+        },
+        // Grass Feed
+        {
+          id: '17',
+          name: 'Premium Cattle Grass',
+          price: 180,
+          description: 'High-quality grass feed for healthy cattle',
+          category: 'Grass',
+          inStock: true,
+          onSale: false,
+          image: 'https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=400'
+        },
+        {
+          id: '18',
+          name: 'Alfalfa Hay',
+          price: 220,
+          description: 'Premium alfalfa hay for livestock',
+          category: 'Grass',
+          inStock: true,
+          onSale: false,
+          image: 'https://images.unsplash.com/photo-1625246333195-78d9c38ad449?w=400'
+        },
+        {
+          id: '19',
+          name: 'Timothy Hay',
+          price: 190,
+          description: 'High-quality timothy hay bales',
+          category: 'Grass',
+          inStock: true,
+          onSale: false,
+          image: 'https://images.unsplash.com/photo-1574323347407-f5e1ad6d020b?w=400'
+        },
+        {
+          id: '20',
+          name: 'Clover Mix',
+          price: 210,
+          description: 'Nutritious clover and grass mix',
+          category: 'Grass',
+          inStock: true,
+          onSale: false,
+          image: 'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=400'
         }
       ];
       setProducts(defaultProducts);
