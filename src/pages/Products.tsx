@@ -8,9 +8,9 @@ import { useFuzzySearch } from "@/hooks/useFuzzySearch";
 // Product name to image mapping for proper image assignment
 const getProductImage = (productName: string) => {
   const imageMap: { [key: string]: string } = {
-    'Organic Tomatoes': 'https://images.unsplash.com/photo-1518977676601-b53f82aba655?w=400',
+    'Organic Tomatoes': 'https://images.unsplash.com/photo-1607305387299-a3d9611cd469?w=400',
     'Bell Peppers': 'https://images.unsplash.com/photo-1563565375-f3fdfdbefa83?w=400',
-    'Fresh Radish': 'https://images.unsplash.com/photo-1518373714866-3f1478910cc0?w=400',
+    'Fresh Radish': 'https://images.unsplash.com/photo-1588781292665-c3db922633b1?w=400',
     'Free-Range Chicken': 'https://images.unsplash.com/photo-1548550023-2bdb3c5beed7?w=400',
     'Premium Cattle Grass': 'https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=400',
     'Fresh Carrots': 'https://images.unsplash.com/photo-1445282768818-728615cc910a?w=400',
@@ -41,21 +41,28 @@ const Products = () => {
   // Load products from localStorage (managed by admin)
   useEffect(() => {
     const savedProducts = localStorage.getItem('farmfresh_products');
+    console.log('Raw localStorage products:', savedProducts);
     if (savedProducts) {
       const adminProducts = JSON.parse(savedProducts);
+      console.log('Parsed admin products:', adminProducts);
       // Convert admin products to display products with images
-        const displayProducts: Product[] = adminProducts
-          .filter((product: any) => product.inStock) // Only show in-stock products
-          .map((product: any) => ({
+      const displayProducts: Product[] = adminProducts
+        .filter((product: any) => product.inStock) // Only show in-stock products
+        .map((product: any) => {
+          const mappedImage = getProductImage(product.name);
+          console.log(`Product: ${product.name}, Original image: ${product.image}, Mapped image: ${mappedImage}`);
+          return {
             id: parseInt(product.id),
             name: product.name,
-            image: product.image || getProductImage(product.name),
+            image: mappedImage, // Force use mapped image instead of stored image
             category: product.category,
             description: product.description,
             price: product.price,
             onSale: product.onSale || false,
             salePrice: product.salePrice
-          }));
+          };
+        });
+      console.log('Final display products:', displayProducts);
       setProductsList(displayProducts);
     } else {
       // Fallback to default products if no admin products exist
@@ -97,16 +104,19 @@ const Products = () => {
         const adminProducts = JSON.parse(savedProducts);
         const displayProducts: Product[] = adminProducts
           .filter((product: any) => product.inStock)
-          .map((product: any) => ({
-            id: parseInt(product.id),
-            name: product.name,
-            image: product.image || getProductImage(product.name),
-            category: product.category,
-            description: product.description,
-            price: product.price,
-            onSale: product.onSale || false,
-            salePrice: product.salePrice
-          }));
+          .map((product: any) => {
+            const mappedImage = getProductImage(product.name);
+            return {
+              id: parseInt(product.id),
+              name: product.name,
+              image: mappedImage, // Force use mapped image instead of stored image
+              category: product.category,
+              description: product.description,
+              price: product.price,
+              onSale: product.onSale || false,
+              salePrice: product.salePrice
+            };
+          });
         setProductsList(displayProducts);
       }
     };
