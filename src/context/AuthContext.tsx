@@ -25,12 +25,24 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    console.log('AuthContext initializing');
     // Check for existing auth token on mount
     const token = localStorage.getItem('authToken');
     const userData = localStorage.getItem('userData');
     
+    console.log('Token exists:', !!token);
+    console.log('UserData exists:', !!userData);
+    
     if (token && userData) {
-      setUser(JSON.parse(userData));
+      try {
+        const parsedUser = JSON.parse(userData);
+        console.log('Setting user:', parsedUser);
+        setUser(parsedUser);
+      } catch (error) {
+        console.error('Error parsing user data:', error);
+        localStorage.removeItem('authToken');
+        localStorage.removeItem('userData');
+      }
     }
     setLoading(false);
   }, []);

@@ -33,10 +33,12 @@ const featuredProducts: Product[] = [
 ];
 
 const FeaturedProducts = () => {
+  console.log('FeaturedProducts component rendering');
   const { addToCart } = useCart();
   
   const handleAddToCart = (product: Product, e: React.MouseEvent) => {
     e.preventDefault();
+    console.log('Adding product to cart:', product.name);
     addToCart(product, 1);
   };
 

@@ -5,6 +5,8 @@ import ContactCTA from "@/components/home/ContactCTA";
 import { Layout } from "@/components/layout/Layout";
 
 const Index = () => {
+  console.log('Index page rendering');
+  
   return (
     <Layout>
       <Hero />
