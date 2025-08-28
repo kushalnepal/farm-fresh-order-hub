@@ -8,40 +8,48 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useToast } from "@/hooks/use-toast";
 import { Lock } from "lucide-react";
+import { useAuth } from "@/context/AuthContext";
 
 const AdminLogin = () => {
-  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const navigate = useNavigate();
   const { toast } = useToast();
-
-  // Simple admin credentials (in a real app, this would be properly secured)
-  const ADMIN_CREDENTIALS = {
-    username: "admin",
-    password: "admin123"
-  };
+  const { signIn } = useAuth();
 
   const handleAdminLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError("");
 
-    // Simulate login delay
-    setTimeout(() => {
-      if (username === ADMIN_CREDENTIALS.username && password === ADMIN_CREDENTIALS.password) {
-        localStorage.setItem('adminAuth', 'true');
-        toast({
-          title: "Admin Login Successful",
-          description: "Welcome to the admin panel!",
-        });
-        navigate("/admin");
-      } else {
-        setError("Invalid admin credentials");
+    try {
+      // Try to sign in as admin
+      await signIn(email, password);
+      
+      // Check if user has admin role
+      const userData = localStorage.getItem('userData');
+      if (userData) {
+        const user = JSON.parse(userData);
+        if (user.role === 'ADMIN') {
+          toast({
+            title: "Admin Login Successful",
+            description: "Welcome to the admin panel!",
+          });
+          navigate("/admin");
+        } else {
+          setError("Access denied. Admin privileges required.");
+          // Sign out non-admin user
+          localStorage.removeItem('authToken');
+          localStorage.removeItem('userData');
+        }
       }
+    } catch (err: any) {
+      setError(err.message || "Invalid credentials");
+    } finally {
       setLoading(false);
-    }, 1000);
+    }
   };
 
   return (
@@ -76,13 +84,13 @@ const AdminLogin = () => {
               )}
               
               <div className="space-y-2">
-                <Label htmlFor="username">Username</Label>
+                <Label htmlFor="email">Email</Label>
                 <Input
-                  id="username"
-                  type="text"
-                  placeholder="Enter admin username"
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
+                  id="email"
+                  type="email"
+                  placeholder="Enter admin email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                   required
                 />
               </div>
@@ -110,9 +118,9 @@ const AdminLogin = () => {
             
             <div className="mt-6 text-center">
               <div className="bg-blue-50 p-3 rounded-md mb-4">
-                <p className="text-sm text-blue-800 font-medium">Demo Credentials:</p>
-                <p className="text-xs text-blue-600">Username: admin</p>
-                <p className="text-xs text-blue-600">Password: admin123</p>
+                <p className="text-sm text-blue-800 font-medium">Demo Info:</p>
+                <p className="text-xs text-blue-600">Sign up with role: ADMIN to access admin panel</p>
+                <p className="text-xs text-blue-600">Or use regular login if you already have an admin account</p>
               </div>
               
               <Link 

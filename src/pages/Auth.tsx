@@ -6,11 +6,12 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/context/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 
 const Auth = () => {
   const [isLogin, setIsLogin] = useState(true);
+  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -20,6 +21,7 @@ const Auth = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { toast } = useToast();
+  const { signIn, signUp } = useAuth();
 
   useEffect(() => {
     const state = location.state as { isSignup?: boolean } | null;
@@ -41,50 +43,28 @@ const Auth = () => {
 
     try {
       if (isLogin) {
-        const { error } = await supabase.auth.signInWithPassword({
-          email,
-          password,
+        await signIn(email, password);
+        toast({
+          title: "Welcome back!",
+          description: "You have successfully logged in.",
         });
-        
-        if (error) {
-          setError(error.message);
-        } else {
-          toast({
-            title: "Welcome back!",
-            description: "You have successfully logged in.",
-          });
-          navigate("/");
-        }
+        navigate("/");
       } else {
-        const signupData = {
-          email,
-          password,
-          options: {
-            data: {
-              role: isAdminSignup ? 'admin' : 'user'
-            }
-          }
-        };
-
-        const { error } = await supabase.auth.signUp(signupData);
-        
-        if (error) {
-          setError(error.message);
-        } else {
-          // Store admin role in localStorage for demo purposes
-          if (isAdminSignup) {
-            localStorage.setItem(`adminUser_${email}`, 'true');
-          }
-          
-          toast({
-            title: "Account created!",
-            description: `You have successfully signed up${isAdminSignup ? ' as an admin' : ''}.`,
-          });
-          navigate("/");
+        if (!name.trim()) {
+          setError("Name is required");
+          setLoading(false);
+          return;
         }
+        
+        await signUp(name, email, password, isAdminSignup ? 'ADMIN' : 'USER');
+        toast({
+          title: "Account created!",
+          description: `You have successfully signed up${isAdminSignup ? ' as an admin' : ''}.`,
+        });
+        navigate("/");
       }
-    } catch (err) {
-      setError("An unexpected error occurred");
+    } catch (err: any) {
+      setError(err.message || "An unexpected error occurred");
     } finally {
       setLoading(false);
     }
@@ -150,6 +130,18 @@ const Auth = () => {
               
               {!isLogin && (
                 <>
+                  <div className="space-y-2">
+                    <Label htmlFor="name">Full Name</Label>
+                    <Input
+                      id="name"
+                      type="text"
+                      placeholder="Enter your full name"
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
+                      required
+                    />
+                  </div>
+                  
                   <div className="space-y-2">
                     <Label htmlFor="confirmPassword">Confirm Password</Label>
                     <Input

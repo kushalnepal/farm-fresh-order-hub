@@ -54,10 +54,15 @@ const Admin = () => {
     image: null as File | null
   });
 
-  // Check admin authentication
+  // Check admin authentication based on user role
   useEffect(() => {
-    const isAdminAuthenticated = localStorage.getItem('adminAuth');
-    if (!isAdminAuthenticated) {
+    const userData = localStorage.getItem('userData');
+    if (userData) {
+      const user = JSON.parse(userData);
+      if (user.role !== 'ADMIN') {
+        navigate('/admin-login');
+      }
+    } else {
       navigate('/admin-login');
     }
   }, [navigate]);
@@ -286,9 +291,10 @@ const Admin = () => {
   }, []);
 
   const handleLogout = () => {
-    localStorage.removeItem('adminAuth');
+    localStorage.removeItem('authToken');
+    localStorage.removeItem('userData');
     toast.success("Logged out successfully");
-    navigate('/admin-login');
+    navigate('/auth');
   };
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
