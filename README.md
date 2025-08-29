@@ -1,73 +1,173 @@
-# Welcome to your Lovable project
+# 🌱 Farm Fresh - Organic Farm E-commerce Platform
 
-## Project info
+## Project Overview
+Farm Fresh is a modern React-based e-commerce web application for an organic farm business that sells fresh vegetables, free-range chicken, and cattle grass feed directly to customers.  
+The backend is built with **Node.js**, **TypeScript**, **Prisma**, and **MySQL**, running on `https://ecommerce-backend.kushalnepal.com.np`.
 
-**URL**: https://lovable.dev/projects/4098ffbb-9fb0-4f96-8046-afbdfff8695d
+---
 
-## How can I edit this code?
+## Key Features
 
-There are several ways of editing your application.
+### 🛒 E-commerce Functionality
+- **Product Catalog:** Dynamic product listing with category filtering.
+- **Smart Search:** Advanced fuzzy search with typo tolerance using Fuse.js and Levenshtein distance.
+- **Shopping Cart:** Optimized cart system using hash maps and greedy algorithms.
+- **Collaborative Filtering:** AI-powered product recommendations based on user purchase patterns.
 
-**Use Lovable**
+### 🎨 User Interface
+- **Responsive Design:** Mobile-first approach using Tailwind CSS.
+- **Modern Components:** Built with shadcn/ui component library.
+- **Theme System:** Custom farm-themed color palette (greens, browns, creams).
+- **Interactive Elements:** Hover effects, transitions, and smooth animations.
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/4098ffbb-9fb0-4f96-8046-afbdfff8695d) and start prompting.
+### 🔐 Authentication & User Management
+- User authentication system integrated with Node.js backend.
+- User profiles and account management.
+- Admin panel for product management.
 
-Changes made via Lovable will be committed automatically to this repo.
+### 📱 Pages & Navigation
+- **Home:** Hero section, featured products, contact CTA.
+- **Products:** Filterable product grid with search.
+- **Cart:** Shopping cart with recommendations.
+- **Order Now:** Custom order form.
+- **Gallery:** Visual showcase.
+- **Contact:** Contact information and forms.
+- **Admin:** Product management dashboard.
 
-**Use your preferred IDE**
+---
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+## Technical Stack
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+### Frontend
+- React 18 with TypeScript
+- Vite for build tooling
+- React Router for navigation
+- Tailwind CSS for styling
+- shadcn/ui component library
 
-Follow these steps:
+### Backend & Data
+- Node.js with TypeScript
+- Prisma ORM with MySQL database
+- RESTful API routes for authentication, product management, and admin operations
+- Server running at `https://ecommerce-backend.kushalnepal.com.np`
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+### Libraries & Tools
+- Fuse.js for fuzzy search
+- Lucide React for icons
+- Sonner for toast notifications
+- React Hook Form for form handling
+- Zod for validation
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+---
 
-# Step 3: Install the necessary dependencies.
-npm i
+## Smart Features
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
+### Advanced Search Algorithm
+- Fuzzy search with typo tolerance
+- Levenshtein distance calculation for string similarity
+- Multi-field search (name, description, category)
+
+### Cart Optimization
+- Hash map implementation for O(1) lookups
+- Greedy algorithm for cart item organization
+- Real-time cart count and total calculation
+
+### Product Recommendations
+- Collaborative filtering based on user behavior
+- "Customers who bought this also bought" functionality
+- Mock purchase history for demonstration
+
+---
+
+## Backend Integration
+
+The backend provides the following REST APIs:
+
+| Feature              | Endpoint                     | Middleware                               |
+|---------------------|------------------------------|-----------------------------------------|
+| User Login           | `/auth/login`                | ErrorHandler                             |
+| User Signup          | `/auth/signup`               | ErrorHandler                             |
+| Create Product       | `/products/createproduct`    | AuthMiddleware, AdminMiddleware, ErrorHandler |
+| Delete Product       | `/products/:id`              | AuthMiddleware, AdminMiddleware, ErrorHandler |
+| Get Product by ID    | `/products/:id`              | AuthMiddleware, AdminMiddleware, ErrorHandler |
+| List Products        | `/products/`                 | AuthMiddleware, AdminMiddleware, ErrorHandler |
+| Update Product       | `/products/:id`              | AuthMiddleware, AdminMiddleware, ErrorHandler |
+
+The frontend consumes these APIs to provide a seamless user experience.
+
+---
+
+## Project Structure (Frontend)
+
+
+```bash
+src/
+├── components/           # Reusable UI components
+│   ├── ui/               # Base UI components (shadcn/ui)
+│   ├── layout/           # Navigation, footer, and general layout
+│   ├── products/         # Product-related components
+│   └── cart/             # Cart and checkout components
+├── pages/                # Route pages
+├── hooks/                # Custom React hooks
+├── context/              # React context providers
+└── integrations/         # External service integrations (APIs, services)
 ```
 
-**Edit a file directly in GitHub**
+**Explanation:**  
+- **components/**: Contains all reusable UI elements, organized by function.  
+- **pages/**: Top-level route pages for the application.  
+- **hooks/**: Custom React hooks for state management, API calls, and utility functions.  
+- **context/**: React Context providers for global state management.  
+- **integrations/**: Integrations with external services like APIs or backend endpoints.  
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
 
-**Use GitHub Codespaces**
+---
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+## Current Status
+✅ Fully functional product catalog and search  
+✅ Shopping cart functionality  
+✅ User authentication  
+✅ Admin product management  
+✅ Responsive design  
+✅ AI-powered recommendations  
 
-## What technologies are used for this project?
+---
 
-This project is built with:
+## Getting Started
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+1. **Clone the repository**  
+```bash
+git clone https://github.com/kushalnepal/farm-fresh-order-hub.git
+```
+2. Install frontend dependencies
 
-## How can I deploy this project?
+```bash
 
-Simply open [Lovable](https://lovable.dev/projects/4098ffbb-9fb0-4f96-8046-afbdfff8695d) and click on Share -> Publish.
+cd frontend
+npm install
+```
 
-## Can I connect a custom domain to my Lovable project?
+4.Configure database
 
-Yes, you can!
+Update DATABASE_URL in .env with your MySQL credentials.
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+Run backend server
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+```bash
+
+npm run dev
+```
+Run frontend
+
+```bash
+
+npm run dev
+```
+Frontend runs on `farm-fresh-order-hub.vercel.app` (Vite default) and connects to backend at `https://ecommerce-backend.kushalnepal.com.np`.
+
+License
+MIT License
+
+
+---
+
