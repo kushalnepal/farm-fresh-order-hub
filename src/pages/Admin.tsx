@@ -54,10 +54,14 @@ const Admin = () => {
     if (userData) {
       const user = JSON.parse(userData);
       if (user.role !== 'ADMIN') {
-        navigate('/admin-login');
+        toast.error("Access denied. Admin privileges required.");
+        navigate('/');
+        return;
       }
     } else {
+      toast.error("Please login as admin to access this page.");
       navigate('/admin-login');
+      return;
     }
   }, [navigate]);
 
@@ -67,10 +71,10 @@ const Admin = () => {
     loadUsers();
   }, []);
 
-  const loadProducts = async () => {
+  const loadProducts = async (skip = 0) => {
     try {
       setLoading(true);
-      const fetchedProducts = await api.getAdminProducts();
+      const fetchedProducts = await api.getProducts(skip);
       setProducts(fetchedProducts);
     } catch (error) {
       if (error instanceof ApiError) {
@@ -136,7 +140,7 @@ const Admin = () => {
         salePrice: newProduct.salePrice ? parseFloat(newProduct.salePrice) : undefined
       };
       
-      await api.createAdminProduct(productData);
+      await api.createProduct(productData);
       
       // Reset form
       setNewProduct({
@@ -172,7 +176,7 @@ const Admin = () => {
       const product = products.find(p => p.id === productId);
       if (!product) return;
       
-      await api.updateAdminProduct(productId, { inStock: !product.inStock });
+      await api.updateProduct(productId, { inStock: !product.inStock });
       await loadProducts();
       toast.success("Product stock updated!");
     } catch (error) {
@@ -194,7 +198,7 @@ const Admin = () => {
         salePrice: product.onSale ? undefined : salePrice || product.price * 0.8
       };
       
-      await api.updateAdminProduct(productId, updates);
+      await api.updateProduct(productId, updates);
       await loadProducts();
       toast.success(updates.onSale ? "Product added to sale!" : "Product removed from sale!");
     } catch (error) {
@@ -208,7 +212,7 @@ const Admin = () => {
 
   const deleteProduct = async (productId: string) => {
     try {
-      await api.deleteAdminProduct(productId);
+      await api.deleteProduct(productId);
       await loadProducts();
       toast.success("Product deleted successfully!");
     } catch (error) {

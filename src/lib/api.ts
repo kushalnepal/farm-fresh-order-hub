@@ -69,8 +69,9 @@ class ApiClient {
   }
 
   // Product endpoints
-  async getProducts() {
-    return this.request('/products/');
+  async getProducts(skip?: number): Promise<Product[]> {
+    const params = skip ? `?skip=${skip}` : '';
+    return this.request(`/products/${params}`);
   }
 
   async getProductById(id: string) {
@@ -82,6 +83,10 @@ class ApiClient {
     price: number;
     description: string;
     tags: string;
+    category?: string;
+    inStock?: boolean;
+    onSale?: boolean;
+    salePrice?: number;
   }) {
     return this.request('/products/createproduct', {
       method: 'POST',
@@ -94,6 +99,10 @@ class ApiClient {
     price?: number;
     description?: string;
     tags?: string;
+    category?: string;
+    inStock?: boolean;
+    onSale?: boolean;
+    salePrice?: number;
   }) {
     return this.request(`/products/${id}`, {
       method: 'PUT',

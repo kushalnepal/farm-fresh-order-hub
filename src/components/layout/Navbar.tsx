@@ -37,6 +37,9 @@ const Navbar = () => {
           <Link to="/order-now" className="font-medium hover:text-farm-green-dark transition-colors">Order Now</Link>
           <Link to="/gallery" className="font-medium hover:text-farm-green-dark transition-colors">Gallery</Link>
           <Link to="/contact" className="font-medium hover:text-farm-green-dark transition-colors">Contact</Link>
+          {user?.role === 'ADMIN' && (
+            <Link to="/admin" className="font-medium hover:text-farm-green-dark transition-colors text-red-600">Admin</Link>
+          )}
         </nav>
 
         {/* Action Buttons */}
@@ -80,6 +83,9 @@ const Navbar = () => {
             <Link to="/order-now" className="font-medium px-4 py-2 hover:bg-farm-cream rounded-md" onClick={toggleMenu}>Order Now</Link>
             <Link to="/gallery" className="font-medium px-4 py-2 hover:bg-farm-cream rounded-md" onClick={toggleMenu}>Gallery</Link>
             <Link to="/contact" className="font-medium px-4 py-2 hover:bg-farm-cream rounded-md" onClick={toggleMenu}>Contact</Link>
+            {user?.role === 'ADMIN' && (
+              <Link to="/admin" className="font-medium px-4 py-2 hover:bg-farm-cream rounded-md text-red-600" onClick={toggleMenu}>Admin</Link>
+            )}
             <div className="flex flex-col gap-3 mt-2">
               <a href="tel:+9779812345678" className="btn-primary">
                 <Phone size={18} />
