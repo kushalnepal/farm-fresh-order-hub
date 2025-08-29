@@ -10,7 +10,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { Plus, Package, ShoppingBag, Tag, LogOut, Upload, Image } from "lucide-react";
+import { Plus, Package, ShoppingBag, Tag, LogOut, Upload, Image, Users, Loader2 } from "lucide-react";
+import { api, type Product, type User, ApiError } from "@/lib/api";
 
 interface Order {
   id: string;
@@ -24,23 +25,13 @@ interface Order {
   createdAt: string;
 }
 
-interface Product {
-  id: string;
-  name: string;
-  price: number;
-  description: string;
-  category: string;
-  inStock: boolean;
-  onSale: boolean;
-  salePrice?: number;
-  image?: string;
-}
-
 const Admin = () => {
-  const [activeTab, setActiveTab] = useState<'orders' | 'products' | 'sales' | 'algorithms'>('orders');
+  const [activeTab, setActiveTab] = useState<'orders' | 'products' | 'sales' | 'algorithms' | 'users'>('products');
   const [orders, setOrders] = useState<Order[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
+  const [users, setUsers] = useState<User[]>([]);
   const [showAddProduct, setShowAddProduct] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const navigate = useNavigate();
   
@@ -50,7 +41,10 @@ const Admin = () => {
     price: "",
     description: "",
     category: "",
+    tags: "",
     inStock: true,
+    onSale: false,
+    salePrice: "",
     image: null as File | null
   });
 
@@ -67,228 +61,40 @@ const Admin = () => {
     }
   }, [navigate]);
 
-  // Load data from localStorage on component mount
+  // Load data from backend on component mount
   useEffect(() => {
-    const savedOrders = localStorage.getItem('farmfresh_orders');
-    const savedProducts = localStorage.getItem('farmfresh_products');
-    
-    if (savedOrders) {
-      setOrders(JSON.parse(savedOrders));
-    }
-    
-    if (savedProducts) {
-      setProducts(JSON.parse(savedProducts));
-    } else {
-      // Initialize with comprehensive product catalog
-      const defaultProducts: Product[] = [
-        // Vegetables
-        {
-          id: '1',
-          name: 'Organic Tomatoes',
-          price: 150,
-          description: 'Fresh organic red tomatoes from our farm',
-          category: 'Vegetables',
-          inStock: true,
-          onSale: false,
-          image: 'https://images.unsplash.com/photo-1518977676601-b53f82aba655?w=400'
-        },
-        {
-          id: '2',
-          name: 'Fresh Carrots',
-          price: 120,
-          description: 'Crisp and sweet organic carrots',
-          category: 'Vegetables',
-          inStock: true,
-          onSale: false,
-          image: 'https://images.unsplash.com/photo-1445282768818-728615cc910a?w=400'
-        },
-        {
-          id: '3',
-          name: 'Green Lettuce',
-          price: 80,
-          description: 'Fresh leafy green lettuce',
-          category: 'Vegetables',
-          inStock: true,
-          onSale: false,
-          image: 'https://images.unsplash.com/photo-1622206151226-18ca2c9ab4a1?w=400'
-        },
-        {
-          id: '4',
-          name: 'Bell Peppers',
-          price: 200,
-          description: 'Colorful fresh bell peppers',
-          category: 'Vegetables',
-          inStock: true,
-          onSale: false,
-          image: 'https://images.unsplash.com/photo-1601004890684-d8cbf643f5f2?w=400'
-        },
-        {
-          id: '5',
-          name: 'Fresh Radish',
-          price: 90,
-          description: 'Crisp red radishes with fresh green tops',
-          category: 'Vegetables',
-          inStock: true,
-          onSale: false,
-          image: 'https://images.unsplash.com/photo-1598170845058-32b9d6a5da37?w=400'
-        },
-        {
-          id: '6',
-          name: 'Fresh Spinach',
-          price: 110,
-          description: 'Tender organic spinach leaves',
-          category: 'Vegetables',
-          inStock: true,
-          onSale: false,
-          image: 'https://images.unsplash.com/photo-1576045057995-568f588f82fb?w=400'
-        },
-        {
-          id: '7',
-          name: 'Broccoli',
-          price: 180,
-          description: 'Fresh green broccoli crowns',
-          category: 'Vegetables',
-          inStock: true,
-          onSale: false,
-          image: 'https://images.unsplash.com/photo-1459411621453-7b03977f4bfc?w=400'
-        },
-        {
-          id: '8',
-          name: 'Cauliflower',
-          price: 160,
-          description: 'Fresh white cauliflower heads',
-          category: 'Vegetables',
-          inStock: true,
-          onSale: false,
-          image: 'https://images.unsplash.com/photo-1568584711271-ca2030bf7e50?w=400'
-        },
-        {
-          id: '9',
-          name: 'Green Beans',
-          price: 140,
-          description: 'Tender fresh green beans',
-          category: 'Vegetables',
-          inStock: true,
-          onSale: false,
-          image: 'https://images.unsplash.com/photo-1506830023786-9daf2c2c01c5?w=400'
-        },
-        {
-          id: '10',
-          name: 'Fresh Corn',
-          price: 100,
-          description: 'Sweet yellow corn on the cob',
-          category: 'Vegetables',
-          inStock: true,
-          onSale: false,
-          image: 'https://images.unsplash.com/photo-1551754655-cd27e38d2076?w=400'
-        },
-        {
-          id: '11',
-          name: 'Onions',
-          price: 60,
-          description: 'Fresh red and yellow onions',
-          category: 'Vegetables',
-          inStock: true,
-          onSale: false,
-          image: 'https://images.unsplash.com/photo-1598637816726-df8b3d32b139?w=400'
-        },
-        {
-          id: '12',
-          name: 'Potatoes',
-          price: 80,
-          description: 'Farm-fresh potatoes',
-          category: 'Vegetables',
-          inStock: true,
-          onSale: false,
-          image: 'https://images.unsplash.com/photo-1518977676601-b53f82aba655?w=400'
-        },
-        // Chicken Products
-        {
-          id: '13',
-          name: 'Free-Range Chicken',
-          price: 550,
-          description: 'Naturally raised free-range whole chicken',
-          category: 'Chicken',
-          inStock: true,
-          onSale: false,
-          image: 'https://images.unsplash.com/photo-1518492104633-130d0cc84637?w=400'
-        },
-        {
-          id: '14',
-          name: 'Chicken Breast',
-          price: 650,
-          description: 'Premium free-range chicken breast',
-          category: 'Chicken',
-          inStock: true,
-          onSale: false,
-          image: 'https://images.unsplash.com/photo-1604503468506-a8da13d82791?w=400'
-        },
-        {
-          id: '15',
-          name: 'Chicken Thighs',
-          price: 450,
-          description: 'Juicy free-range chicken thighs',
-          category: 'Chicken',
-          inStock: true,
-          onSale: false,
-          image: 'https://images.unsplash.com/photo-1587593810167-a84920ea0781?w=400'
-        },
-        {
-          id: '16',
-          name: 'Fresh Eggs',
-          price: 200,
-          description: 'Farm-fresh free-range eggs',
-          category: 'Chicken',
-          inStock: true,
-          onSale: false,
-          image: 'https://images.unsplash.com/photo-1518304228744-b0e847f7fd3a?w=400'
-        },
-        // Grass Feed
-        {
-          id: '17',
-          name: 'Premium Cattle Grass',
-          price: 180,
-          description: 'High-quality grass feed for healthy cattle',
-          category: 'Grass',
-          inStock: true,
-          onSale: false,
-          image: 'https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=400'
-        },
-        {
-          id: '18',
-          name: 'Alfalfa Hay',
-          price: 220,
-          description: 'Premium alfalfa hay for livestock',
-          category: 'Grass',
-          inStock: true,
-          onSale: false,
-          image: 'https://images.unsplash.com/photo-1625246333195-78d9c38ad449?w=400'
-        },
-        {
-          id: '19',
-          name: 'Timothy Hay',
-          price: 190,
-          description: 'High-quality timothy hay bales',
-          category: 'Grass',
-          inStock: true,
-          onSale: false,
-          image: 'https://images.unsplash.com/photo-1574323347407-f5e1ad6d020b?w=400'
-        },
-        {
-          id: '20',
-          name: 'Clover Mix',
-          price: 210,
-          description: 'Nutritious clover and grass mix',
-          category: 'Grass',
-          inStock: true,
-          onSale: false,
-          image: 'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=400'
-        }
-      ];
-      setProducts(defaultProducts);
-      localStorage.setItem('farmfresh_products', JSON.stringify(defaultProducts));
-    }
+    loadProducts();
+    loadUsers();
   }, []);
+
+  const loadProducts = async () => {
+    try {
+      setLoading(true);
+      const fetchedProducts = await api.getAdminProducts();
+      setProducts(fetchedProducts);
+    } catch (error) {
+      if (error instanceof ApiError) {
+        toast.error(`Failed to load products: ${error.message}`);
+      } else {
+        toast.error('Failed to load products');
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const loadUsers = async () => {
+    try {
+      const fetchedUsers = await api.getUsers();
+      setUsers(fetchedUsers);
+    } catch (error) {
+      if (error instanceof ApiError) {
+        toast.error(`Failed to load users: ${error.message}`);
+      } else {
+        toast.error('Failed to load users');
+      }
+    }
+  };
 
   const handleLogout = () => {
     localStorage.removeItem('authToken');
@@ -309,7 +115,7 @@ const Admin = () => {
     }
   };
 
-  const handleAddProduct = (e: React.FormEvent) => {
+  const handleAddProduct = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!newProduct.name || !newProduct.price || !newProduct.description) {
@@ -317,34 +123,101 @@ const Admin = () => {
       return;
     }
     
-    const product: Product = {
-      id: Date.now().toString(),
-      name: newProduct.name,
-      price: parseFloat(newProduct.price),
-      description: newProduct.description,
-      category: newProduct.category || 'general',
-      inStock: newProduct.inStock,
-      onSale: false,
-      image: imagePreview || undefined
-    };
-    
-    const updatedProducts = [...products, product];
-    setProducts(updatedProducts);
-    localStorage.setItem('farmfresh_products', JSON.stringify(updatedProducts));
-    
-    // Reset form
-    setNewProduct({
-      name: "",
-      price: "",
-      description: "",
-      category: "",
-      inStock: true,
-      image: null
-    });
-    setImagePreview(null);
-    
-    setShowAddProduct(false);
-    toast.success("Product added successfully!");
+    try {
+      setLoading(true);
+      const productData = {
+        name: newProduct.name,
+        price: parseFloat(newProduct.price),
+        description: newProduct.description,
+        tags: newProduct.tags || newProduct.category,
+        category: newProduct.category,
+        inStock: newProduct.inStock,
+        onSale: newProduct.onSale,
+        salePrice: newProduct.salePrice ? parseFloat(newProduct.salePrice) : undefined
+      };
+      
+      await api.createAdminProduct(productData);
+      
+      // Reset form
+      setNewProduct({
+        name: "",
+        price: "",
+        description: "",
+        category: "",
+        tags: "",
+        inStock: true,
+        onSale: false,
+        salePrice: "",
+        image: null
+      });
+      setImagePreview(null);
+      setShowAddProduct(false);
+      
+      // Reload products
+      await loadProducts();
+      toast.success("Product added successfully!");
+    } catch (error) {
+      if (error instanceof ApiError) {
+        toast.error(`Failed to add product: ${error.message}`);
+      } else {
+        toast.error('Failed to add product');
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const toggleProductStock = async (productId: string) => {
+    try {
+      const product = products.find(p => p.id === productId);
+      if (!product) return;
+      
+      await api.updateAdminProduct(productId, { inStock: !product.inStock });
+      await loadProducts();
+      toast.success("Product stock updated!");
+    } catch (error) {
+      if (error instanceof ApiError) {
+        toast.error(`Failed to update stock: ${error.message}`);
+      } else {
+        toast.error('Failed to update stock');
+      }
+    }
+  };
+
+  const toggleProductSale = async (productId: string, salePrice?: number) => {
+    try {
+      const product = products.find(p => p.id === productId);
+      if (!product) return;
+      
+      const updates = {
+        onSale: !product.onSale,
+        salePrice: product.onSale ? undefined : salePrice || product.price * 0.8
+      };
+      
+      await api.updateAdminProduct(productId, updates);
+      await loadProducts();
+      toast.success(updates.onSale ? "Product added to sale!" : "Product removed from sale!");
+    } catch (error) {
+      if (error instanceof ApiError) {
+        toast.error(`Failed to update sale status: ${error.message}`);
+      } else {
+        toast.error('Failed to update sale status');
+      }
+    }
+  };
+
+  const deleteProduct = async (productId: string) => {
+    try {
+      await api.deleteAdminProduct(productId);
+      await loadProducts();
+      toast.success("Product deleted successfully!");
+    } catch (error) {
+      if (error instanceof ApiError) {
+        toast.error(`Failed to delete product: ${error.message}`);
+      } else {
+        toast.error('Failed to delete product');
+      }
+    }
   };
 
   const updateOrderStatus = (orderId: string, newStatus: string) => {
@@ -354,31 +227,6 @@ const Admin = () => {
     setOrders(updatedOrders);
     localStorage.setItem('farmfresh_orders', JSON.stringify(updatedOrders));
     toast.success("Order status updated!");
-  };
-
-  const toggleProductStock = (productId: string) => {
-    const updatedProducts = products.map(product => 
-      product.id === productId ? { ...product, inStock: !product.inStock } : product
-    );
-    setProducts(updatedProducts);
-    localStorage.setItem('farmfresh_products', JSON.stringify(updatedProducts));
-    toast.success("Product stock updated!");
-  };
-
-  const toggleProductSale = (productId: string, salePrice?: number) => {
-    const updatedProducts = products.map(product => {
-      if (product.id === productId) {
-        return {
-          ...product,
-          onSale: !product.onSale,
-          salePrice: product.onSale ? undefined : salePrice || product.price * 0.8
-        };
-      }
-      return product;
-    });
-    setProducts(updatedProducts);
-    localStorage.setItem('farmfresh_products', JSON.stringify(updatedProducts));
-    toast.success(updatedProducts.find(p => p.id === productId)?.onSale ? "Product added to sale!" : "Product removed from sale!");
   };
 
   const vegetables = products.filter(product => 
@@ -624,7 +472,10 @@ const Admin = () => {
                           price: "",
                           description: "",
                           category: "",
+                          tags: "",
                           inStock: true,
+                          onSale: false,
+                          salePrice: "",
                           image: null
                         });
                       }}>
@@ -658,17 +509,9 @@ const Admin = () => {
                       {products.map((product) => (
                         <TableRow key={product.id}>
                           <TableCell>
-                            {product.image ? (
-                              <img
-                                src={product.image}
-                                alt={product.name}
-                                className="w-12 h-12 object-cover rounded"
-                              />
-                            ) : (
-                              <div className="w-12 h-12 bg-gray-200 rounded flex items-center justify-center">
-                                <Image size={16} className="text-gray-400" />
-                              </div>
-                            )}
+                            <div className="w-12 h-12 bg-gray-200 rounded flex items-center justify-center">
+                              <Image size={16} className="text-gray-400" />
+                            </div>
                           </TableCell>
                           <TableCell className="font-medium">{product.name}</TableCell>
                           <TableCell>{product.category}</TableCell>

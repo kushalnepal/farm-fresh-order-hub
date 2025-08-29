@@ -2,8 +2,10 @@ import { useState, useEffect } from "react";
 import { Layout } from "@/components/layout/Layout";
 import ProductCard, { Product } from "@/components/products/ProductCard";
 import CategoryFilter from "@/components/products/CategoryFilter";
-import { Search } from "lucide-react";
+import { Search, Loader2 } from "lucide-react";
 import { useFuzzySearch } from "@/hooks/useFuzzySearch";
+import { api, ApiError } from "@/lib/api";
+import { toast } from "sonner";
 
 // Product name to image mapping for proper image assignment
 const getProductImage = (productName: string) => {
@@ -37,35 +39,48 @@ const Products = () => {
   const [activeCategory, setActiveCategory] = useState("All");
   const [searchQuery, setSearchQuery] = useState("");
   const [productsList, setProductsList] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  // Load products from localStorage (managed by admin)
+  // Load products from backend API
   useEffect(() => {
-    const savedProducts = localStorage.getItem('farmfresh_products');
-    console.log('Raw localStorage products:', savedProducts);
-    if (savedProducts) {
-      const adminProducts = JSON.parse(savedProducts);
-      console.log('Parsed admin products:', adminProducts);
-      // Convert admin products to display products with images
-      const displayProducts: Product[] = adminProducts
+    loadProducts();
+  }, []);
+
+  const loadProducts = async () => {
+    try {
+      setLoading(true);
+      const backendProducts = await api.getProducts() as any[];
+      console.log('Backend products:', backendProducts);
+      
+      // Convert backend products to display products with proper image mapping
+      const displayProducts: Product[] = backendProducts
         .filter((product: any) => product.inStock) // Only show in-stock products
         .map((product: any) => {
           const mappedImage = getProductImage(product.name);
-          console.log(`Product: ${product.name}, Original image: ${product.image}, Mapped image: ${mappedImage}`);
+          console.log(`Product: ${product.name}, Mapped image: ${mappedImage}`);
           return {
             id: parseInt(product.id),
             name: product.name,
-            image: mappedImage, // Force use mapped image instead of stored image
-            category: product.category,
+            image: mappedImage,
+            category: product.category || 'General',
             description: product.description,
             price: product.price,
             onSale: product.onSale || false,
             salePrice: product.salePrice
           };
         });
+      
       console.log('Final display products:', displayProducts);
       setProductsList(displayProducts);
-    } else {
-      // Fallback to default products if no admin products exist
+    } catch (error) {
+      console.error('Failed to load products:', error);
+      if (error instanceof ApiError) {
+        toast.error(`Failed to load products: ${error.message}`);
+      } else {
+        toast.error('Failed to load products');
+      }
+      
+      // Fallback to default products if API fails
       const defaultProducts: Product[] = [
         {
           id: 1,
@@ -93,37 +108,10 @@ const Products = () => {
         },
       ];
       setProductsList(defaultProducts);
+    } finally {
+      setLoading(false);
     }
-  }, []);
-
-  // Listen for changes in localStorage to update products in real-time
-  useEffect(() => {
-    const handleStorageChange = () => {
-      const savedProducts = localStorage.getItem('farmfresh_products');
-      if (savedProducts) {
-        const adminProducts = JSON.parse(savedProducts);
-        const displayProducts: Product[] = adminProducts
-          .filter((product: any) => product.inStock)
-          .map((product: any) => {
-            const mappedImage = getProductImage(product.name);
-            return {
-              id: parseInt(product.id),
-              name: product.name,
-              image: mappedImage, // Force use mapped image instead of stored image
-              category: product.category,
-              description: product.description,
-              price: product.price,
-              onSale: product.onSale || false,
-              salePrice: product.salePrice
-            };
-          });
-        setProductsList(displayProducts);
-      }
-    };
-
-    window.addEventListener('storage', handleStorageChange);
-    return () => window.removeEventListener('storage', handleStorageChange);
-  }, []);
+  };
 
   // Extract unique categories
   const categories = Array.from(
@@ -194,7 +182,12 @@ const Products = () => {
 
           {/* Product Grid */}
           <div className="md:w-3/4">
-            {filteredProducts.length === 0 ? (
+            {loading ? (
+              <div className="flex justify-center items-center py-16">
+                <Loader2 className="animate-spin" size={32} />
+                <span className="ml-2">Loading products...</span>
+              </div>
+            ) : filteredProducts.length === 0 ? (
               <div className="text-center py-16">
                 <h3 className="text-xl font-medium mb-2">No products found</h3>
                 <p className="text-gray-600">Try a different search term or browse all categories.</p>

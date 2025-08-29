@@ -1,10 +1,24 @@
-const API_BASE_URL = 'http://localhost:5000';
+const API_BASE_URL = 'http://localhost:5000/api';
 
 interface User {
   id: string;
   name: string;
   email: string;
   role: 'USER' | 'ADMIN';
+}
+
+interface Product {
+  id: string;
+  name: string;
+  price: number;
+  description: string;
+  tags: string;
+  category?: string;
+  inStock: boolean;
+  onSale?: boolean;
+  salePrice?: number;
+  createdAt: string;
+  updatedAt: string;
 }
 
 class ApiError extends Error {
@@ -92,7 +106,76 @@ class ApiClient {
       method: 'DELETE',
     });
   }
+
+  // Admin user management endpoints
+  async getUsers(): Promise<User[]> {
+    return this.request('/admin/users');
+  }
+
+  async getUserById(id: string): Promise<User> {
+    return this.request(`/admin/users/${id}`);
+  }
+
+  async updateUser(id: string, updates: { name?: string; email?: string; role?: 'USER' | 'ADMIN' }): Promise<User> {
+    return this.request(`/admin/users/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(updates),
+    });
+  }
+
+  async deleteUser(id: string): Promise<void> {
+    return this.request(`/admin/users/${id}`, {
+      method: 'DELETE',
+    });
+  }
+
+  // Admin product management endpoints
+  async createAdminProduct(product: {
+    name: string;
+    price: number;
+    description: string;
+    tags: string;
+    category?: string;
+    inStock?: boolean;
+    onSale?: boolean;
+    salePrice?: number;
+  }): Promise<Product> {
+    return this.request('/admin/products', {
+      method: 'POST',
+      body: JSON.stringify(product),
+    });
+  }
+
+  async getAdminProducts(): Promise<Product[]> {
+    return this.request('/admin/products');
+  }
+
+  async getAdminProductById(id: string): Promise<Product> {
+    return this.request(`/admin/products/${id}`);
+  }
+
+  async updateAdminProduct(id: string, updates: {
+    name?: string;
+    price?: number;
+    description?: string;
+    tags?: string;
+    category?: string;
+    inStock?: boolean;
+    onSale?: boolean;
+    salePrice?: number;
+  }): Promise<Product> {
+    return this.request(`/admin/products/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(updates),
+    });
+  }
+
+  async deleteAdminProduct(id: string): Promise<void> {
+    return this.request(`/admin/products/${id}`, {
+      method: 'DELETE',
+    });
+  }
 }
 
 export const api = new ApiClient();
-export { ApiError, type User };
+export { ApiError, type User, type Product };
