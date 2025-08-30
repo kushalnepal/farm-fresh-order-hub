@@ -8,17 +8,17 @@ import { Product } from "@/components/products/ProductCard";
 const featuredProducts: Product[] = [
   {
     id: 1,
-    name: "Organic Tomatoes",
-    image: "https://images.unsplash.com/photo-1518977676601-b53f82aba655?w=400",
+    name: "Organic Potatoes",
+    image: "https://images.unsplash.com/photo-1598170845058-32b9d6a5da37?w=400",
     category: "Vegetables",
-    description: "Fresh organic red tomatoes from our farm.",
-    price: 150,
+    description: "Fresh organic potatoes perfect for any meal.",
+    price: 120,
   },
   {
     id: 2,
     name: "Free-Range Chicken",
     image: "https://images.unsplash.com/photo-1518492104633-130d0cc84637?w=400",
-    category: "Chicken",
+    category: "Chicken", 
     description: "Naturally raised free-range chicken without antibiotics.",
     price: 550,
   },
