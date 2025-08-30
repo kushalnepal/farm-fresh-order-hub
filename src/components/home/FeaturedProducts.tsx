@@ -7,14 +7,6 @@ import { Product } from "@/components/products/ProductCard";
 // Featured product data with correct images
 const featuredProducts: Product[] = [
   {
-    id: 1,
-    name: "Organic Potatoes",
-    image: "https://images.unsplash.com/photo-1598170845058-32b9d6a5da37?w=400",
-    category: "Vegetables",
-    description: "Fresh organic potatoes perfect for any meal.",
-    price: 120,
-  },
-  {
     id: 2,
     name: "Free-Range Chicken",
     image: "https://images.unsplash.com/photo-1518492104633-130d0cc84637?w=400",
