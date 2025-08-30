@@ -1,6 +1,11 @@
-
-import React, { createContext, useContext, useState, ReactNode } from "react";
 import { Product } from "@/components/products/ProductCard";
+import {
+  createContext,
+  ReactNode,
+  useContext,
+  useEffect,
+  useState,
+} from "react";
 import { toast } from "sonner";
 
 export interface CartItem extends Product {
@@ -22,17 +27,47 @@ const CartContext = createContext<CartContextType | undefined>(undefined);
 export const CartProvider = ({ children }: { children: ReactNode }) => {
   const [items, setItems] = useState<CartItem[]>([]);
 
+  // Load cart from localStorage on mount
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem("farm_cart");
+      if (saved) {
+        const parsed = JSON.parse(saved) as any[];
+        const normalized = parsed.map((it: any) => ({
+          ...it,
+          id: Number(it.id),
+          quantity:
+            typeof it.quantity === "number"
+              ? it.quantity
+              : Number(it.quantity) || 1,
+        }));
+        setItems(normalized);
+      }
+    } catch (err) {
+      console.warn("Failed to load cart from storage", err);
+    }
+  }, []);
+
+  // Persist cart to localStorage whenever items change
+  useEffect(() => {
+    try {
+      localStorage.setItem("farm_cart", JSON.stringify(items));
+    } catch (err) {
+      console.warn("Failed to persist cart to storage", err);
+    }
+  }, [items]);
+
   // Hash map for O(1) lookups and deduplication
   const createItemsHashMap = (cartItems: CartItem[]) => {
     const hashMap = new Map<number, CartItem>();
-    cartItems.forEach(item => hashMap.set(item.id, item));
+    cartItems.forEach((item) => hashMap.set(item.id, item));
     return hashMap;
   };
 
   // Greedy algorithm: prioritize items with best value (price/quantity ratio)
   const optimizeCartItems = (cartItems: CartItem[]): CartItem[] => {
     return cartItems
-      .filter(item => item.quantity > 0) // Remove zero quantities
+      .filter((item) => item.quantity > 0) // Remove zero quantities
       .sort((a, b) => {
         // Greedy approach: sort by value efficiency (lower price per unit first)
         const aEfficiency = a.price / a.quantity;
@@ -42,10 +77,10 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const addToCart = (product: Product, quantity = 1) => {
-    setItems(currentItems => {
+    setItems((currentItems) => {
       // Use hash map for O(1) deduplication check
       const itemsMap = createItemsHashMap(currentItems);
-      
+
       if (itemsMap.has(product.id)) {
         // Greedy approach: always add to existing item for better efficiency
         const existingItem = itemsMap.get(product.id)!;
@@ -65,11 +100,11 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const removeFromCart = (productId: number) => {
-    setItems(currentItems => {
+    setItems((currentItems) => {
       // Use hash map for efficient removal
       const itemsMap = createItemsHashMap(currentItems);
       itemsMap.delete(productId);
-      
+
       toast.info("Item removed from cart");
       return optimizeCartItems(Array.from(itemsMap.values()));
     });
@@ -80,22 +115,23 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
       removeFromCart(productId);
       return;
     }
-    
-    setItems(currentItems => {
+
+    setItems((currentItems) => {
       const itemsMap = createItemsHashMap(currentItems);
-      
+
       if (itemsMap.has(productId)) {
         const item = itemsMap.get(productId)!;
         item.quantity = quantity;
         itemsMap.set(productId, item);
       }
-      
+
       return optimizeCartItems(Array.from(itemsMap.values()));
     });
   };
 
   const clearCart = () => {
     setItems([]);
+    localStorage.removeItem("farm_cart");
     toast.info("Cart cleared");
   };
 
@@ -109,15 +145,17 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   };
 
   return (
-    <CartContext.Provider value={{
-      items,
-      addToCart,
-      removeFromCart,
-      updateQuantity,
-      clearCart,
-      getCartTotal,
-      getCartCount
-    }}>
+    <CartContext.Provider
+      value={{
+        items,
+        addToCart,
+        removeFromCart,
+        updateQuantity,
+        clearCart,
+        getCartTotal,
+        getCartCount,
+      }}
+    >
       {children}
     </CartContext.Provider>
   );
