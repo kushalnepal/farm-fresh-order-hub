@@ -40,11 +40,7 @@ const Admin = () => {
     name: "",
     price: "",
     description: "",
-    category: "",
-    tags: "",
-    inStock: true,
-    onSale: false,
-    salePrice: "",
+    tags: "all",
     image: null as File | null
   });
 
@@ -133,11 +129,8 @@ const Admin = () => {
         name: newProduct.name,
         price: parseFloat(newProduct.price),
         description: newProduct.description,
-        tags: newProduct.tags || newProduct.category,
-        category: newProduct.category,
-        inStock: newProduct.inStock,
-        onSale: newProduct.onSale,
-        salePrice: newProduct.salePrice ? parseFloat(newProduct.salePrice) : undefined
+        tags: newProduct.tags,
+        image: newProduct.image || undefined
       };
       
       await api.createProduct(productData);
@@ -147,11 +140,7 @@ const Admin = () => {
         name: "",
         price: "",
         description: "",
-        category: "",
-        tags: "",
-        inStock: true,
-        onSale: false,
-        salePrice: "",
+        tags: "all",
         image: null
       });
       setImagePreview(null);
@@ -168,45 +157,6 @@ const Admin = () => {
       }
     } finally {
       setLoading(false);
-    }
-  };
-
-  const toggleProductStock = async (productId: string) => {
-    try {
-      const product = products.find(p => p.id === productId);
-      if (!product) return;
-      
-      await api.updateProduct(productId, { inStock: !product.inStock });
-      await loadProducts();
-      toast.success("Product stock updated!");
-    } catch (error) {
-      if (error instanceof ApiError) {
-        toast.error(`Failed to update stock: ${error.message}`);
-      } else {
-        toast.error('Failed to update stock');
-      }
-    }
-  };
-
-  const toggleProductSale = async (productId: string, salePrice?: number) => {
-    try {
-      const product = products.find(p => p.id === productId);
-      if (!product) return;
-      
-      const updates = {
-        onSale: !product.onSale,
-        salePrice: product.onSale ? undefined : salePrice || product.price * 0.8
-      };
-      
-      await api.updateProduct(productId, updates);
-      await loadProducts();
-      toast.success(updates.onSale ? "Product added to sale!" : "Product removed from sale!");
-    } catch (error) {
-      if (error instanceof ApiError) {
-        toast.error(`Failed to update sale status: ${error.message}`);
-      } else {
-        toast.error('Failed to update sale status');
-      }
     }
   };
 
@@ -232,10 +182,6 @@ const Admin = () => {
     localStorage.setItem('farmfresh_orders', JSON.stringify(updatedOrders));
     toast.success("Order status updated!");
   };
-
-  const vegetables = products.filter(product => 
-    product.category.toLowerCase() === 'vegetables'
-  );
 
   return (
     <Layout>
@@ -270,12 +216,12 @@ const Admin = () => {
             Products ({products.length})
           </Button>
           <Button
-            variant={activeTab === 'sales' ? 'default' : 'outline'}
-            onClick={() => setActiveTab('sales')}
+            variant={activeTab === 'users' ? 'default' : 'outline'}
+            onClick={() => setActiveTab('users')}
             className="flex items-center gap-2"
           >
-            <Tag size={18} />
-            Sales Management
+            <Users size={18} />
+            Users ({users.length})
           </Button>
           <Button
             variant={activeTab === 'algorithms' ? 'default' : 'outline'}
@@ -412,12 +358,12 @@ const Admin = () => {
                         />
                       </div>
                       <div>
-                        <Label htmlFor="productCategory">Category</Label>
+                        <Label htmlFor="productTags">Tags</Label>
                         <Input
-                          id="productCategory"
-                          value={newProduct.category}
-                          onChange={(e) => setNewProduct({...newProduct, category: e.target.value})}
-                          placeholder="e.g., vegetables, dairy, fruits"
+                          id="productTags"
+                          value={newProduct.tags}
+                          onChange={(e) => setNewProduct({...newProduct, tags: e.target.value})}
+                          placeholder="e.g., organic, fresh, premium"
                         />
                       </div>
                       <div>
@@ -475,11 +421,7 @@ const Admin = () => {
                           name: "",
                           price: "",
                           description: "",
-                          category: "",
-                          tags: "",
-                          inStock: true,
-                          onSale: false,
-                          salePrice: "",
+                          tags: "all",
                           image: null
                         });
                       }}>
@@ -494,7 +436,12 @@ const Admin = () => {
             {/* Products List */}
             <Card>
               <CardContent className="p-6">
-                {products.length === 0 ? (
+                {loading ? (
+                  <div className="flex justify-center items-center py-8">
+                    <Loader2 className="animate-spin" size={24} />
+                    <span className="ml-2">Loading products...</span>
+                  </div>
+                ) : products.length === 0 ? (
                   <p className="text-gray-500 text-center py-8">No products yet</p>
                 ) : (
                   <Table>
@@ -502,10 +449,9 @@ const Admin = () => {
                       <TableRow>
                         <TableHead>Image</TableHead>
                         <TableHead>Product Name</TableHead>
-                        <TableHead>Category</TableHead>
                         <TableHead>Price</TableHead>
+                        <TableHead>Tags</TableHead>
                         <TableHead>Description</TableHead>
-                        <TableHead>Stock</TableHead>
                         <TableHead>Actions</TableHead>
                       </TableRow>
                     </TableHeader>
@@ -513,28 +459,33 @@ const Admin = () => {
                       {products.map((product) => (
                         <TableRow key={product.id}>
                           <TableCell>
-                            <div className="w-12 h-12 bg-gray-200 rounded flex items-center justify-center">
-                              <Image size={16} className="text-gray-400" />
-                            </div>
+                            {product.image ? (
+                              <img
+                                src={`data:image/jpeg;base64,${product.image}`}
+                                alt={product.name}
+                                className="w-12 h-12 object-cover rounded border"
+                              />
+                            ) : (
+                              <div className="w-12 h-12 bg-gray-200 rounded flex items-center justify-center">
+                                <Image size={16} className="text-gray-400" />
+                              </div>
+                            )}
                           </TableCell>
                           <TableCell className="font-medium">{product.name}</TableCell>
-                          <TableCell>{product.category}</TableCell>
                           <TableCell>NPR {product.price}</TableCell>
-                          <TableCell className="max-w-xs">
-                            <div className="text-sm">{product.description}</div>
-                          </TableCell>
                           <TableCell>
-                            <Badge variant={product.inStock ? 'default' : 'destructive'}>
-                              {product.inStock ? 'In Stock' : 'Out of Stock'}
-                            </Badge>
+                            <Badge variant="outline">{product.tags}</Badge>
+                          </TableCell>
+                          <TableCell className="max-w-xs">
+                            <div className="text-sm truncate">{product.description}</div>
                           </TableCell>
                           <TableCell>
                             <Button
                               size="sm"
-                              variant="outline"
-                              onClick={() => toggleProductStock(product.id)}
+                              variant="destructive"
+                              onClick={() => deleteProduct(product.id)}
                             >
-                              {product.inStock ? 'Mark Out of Stock' : 'Mark In Stock'}
+                              Delete
                             </Button>
                           </TableCell>
                         </TableRow>
@@ -547,57 +498,45 @@ const Admin = () => {
           </div>
         )}
 
-        {/* Sales Management Tab */}
-        {activeTab === 'sales' && (
+        {/* Users Tab */}
+        {activeTab === 'users' && (
           <Card>
             <CardHeader>
-              <CardTitle>Vegetable Sales Management</CardTitle>
+              <CardTitle>User Management</CardTitle>
               <CardDescription>
-                Put vegetables on sale - these changes will be reflected on the customer products page
+                Manage user accounts and roles
               </CardDescription>
             </CardHeader>
             <CardContent>
-              {vegetables.length === 0 ? (
-                <p className="text-gray-500 text-center py-8">No vegetables found</p>
+              {users.length === 0 ? (
+                <p className="text-gray-500 text-center py-8">No users yet</p>
               ) : (
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead>Vegetable Name</TableHead>
-                      <TableHead>Regular Price</TableHead>
-                      <TableHead>Sale Price</TableHead>
-                      <TableHead>Sale Status</TableHead>
+                      <TableHead>Name</TableHead>
+                      <TableHead>Email</TableHead>
+                      <TableHead>Role</TableHead>
+                      <TableHead>Created</TableHead>
                       <TableHead>Actions</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {vegetables.map((vegetable) => (
-                      <TableRow key={vegetable.id}>
-                        <TableCell className="font-medium">{vegetable.name}</TableCell>
-                        <TableCell>NPR {vegetable.price}</TableCell>
+                    {users.map((user) => (
+                      <TableRow key={user.id}>
+                        <TableCell className="font-medium">{user.name}</TableCell>
+                        <TableCell>{user.email}</TableCell>
                         <TableCell>
-                          {vegetable.onSale ? (
-                            <span className="text-red-600 font-medium">
-                              NPR {vegetable.salePrice}
-                            </span>
-                          ) : (
-                            <span className="text-gray-400">-</span>
-                          )}
-                        </TableCell>
-                        <TableCell>
-                          <Badge variant={vegetable.onSale ? 'destructive' : 'outline'}>
-                            {vegetable.onSale ? 'ON SALE' : 'Regular Price'}
+                          <Badge variant={user.role === 'ADMIN' ? 'default' : 'secondary'}>
+                            {user.role}
                           </Badge>
                         </TableCell>
                         <TableCell>
-                          <Button
-                            size="sm"
-                            variant={vegetable.onSale ? 'outline' : 'default'}
-                            onClick={() => toggleProductSale(vegetable.id)}
-                            className="flex items-center gap-2"
-                          >
-                            <Tag size={16} />
-                            {vegetable.onSale ? 'Remove from Sale' : 'Put on Sale'}
+                          {new Date(user.createdAt || '').toLocaleDateString()}
+                        </TableCell>
+                        <TableCell>
+                          <Button size="sm" variant="outline">
+                            Edit Role
                           </Button>
                         </TableCell>
                       </TableRow>

@@ -16,7 +16,7 @@ const getProductImage = (productName: string) => {
     'Free-Range Chicken': 'https://images.unsplash.com/photo-1548550023-2bdb3c5beed7?w=400',
     'Premium Cattle Grass': 'https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=400',
     'Fresh Carrots': 'https://images.unsplash.com/photo-1445282768818-728615cc910a?w=400',
-    'Organic Potatoes': 'https://images.unsplash.com/photo-1518977676601-b53f82aba655?w=400',
+    'Organic Potatoes': 'https://images.unsplash.com/photo-1598170845058-32b9d6a5da37?w=400',
     'Green Spinach': 'https://images.unsplash.com/photo-1576045057995-568f588f82fb?w=400',
     'Farm Fresh Eggs': 'https://images.unsplash.com/photo-1518492104633-130d0cc84637?w=400',
     'Organic Broccoli': 'https://images.unsplash.com/photo-1459411621453-7b03977f4bfc?w=400',
@@ -54,19 +54,16 @@ const Products = () => {
       
       // Convert backend products to display products with proper image mapping
       const displayProducts: Product[] = backendProducts
-        .filter((product: any) => product.inStock) // Only show in-stock products
         .map((product: any) => {
           const mappedImage = getProductImage(product.name);
           console.log(`Product: ${product.name}, Mapped image: ${mappedImage}`);
           return {
             id: parseInt(product.id),
             name: product.name,
-            image: mappedImage,
-            category: product.category || 'General',
+            image: product.image ? `data:image/jpeg;base64,${product.image}` : mappedImage,
+            category: product.tags || 'General',
             description: product.description,
             price: product.price,
-            onSale: product.onSale || false,
-            salePrice: product.salePrice
           };
         });
       

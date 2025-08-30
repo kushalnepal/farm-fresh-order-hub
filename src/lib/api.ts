@@ -1,10 +1,12 @@
-const API_BASE_URL = 'http://localhost:5000/api';
+const API_BASE_URL = 'https://ecommerce-backend.kushalnepal.com.np/api';
 
 interface User {
   id: string;
   name: string;
   email: string;
   role: 'USER' | 'ADMIN';
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 interface Product {
@@ -13,10 +15,7 @@ interface Product {
   price: number;
   description: string;
   tags: string;
-  category?: string;
-  inStock: boolean;
-  onSale?: boolean;
-  salePrice?: number;
+  image?: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -29,20 +28,26 @@ class ApiError extends Error {
 }
 
 class ApiClient {
-  private getAuthHeaders() {
+  private getAuthHeaders(isFormData = false) {
     const token = localStorage.getItem('authToken');
-    return {
-      'Content-Type': 'application/json',
+    const headers: Record<string, string> = {
       ...(token && { Authorization: `Bearer ${token}` })
     };
+    
+    if (!isFormData) {
+      headers['Content-Type'] = 'application/json';
+    }
+    
+    return headers;
   }
 
-  private async request<T>(endpoint: string, options?: RequestInit): Promise<T> {
+  private async request<T>(endpoint: string, options?: RequestInit & { isFormData?: boolean }): Promise<T> {
     const url = `${API_BASE_URL}${endpoint}`;
+    const { isFormData, ...fetchOptions } = options || {};
     
     const response = await fetch(url, {
-      headers: this.getAuthHeaders(),
-      ...options,
+      headers: this.getAuthHeaders(isFormData),
+      ...fetchOptions,
     });
 
     if (!response.ok) {
@@ -78,19 +83,27 @@ class ApiClient {
     return this.request(`/products/${id}`);
   }
 
-  async createProduct(product: {
+  async createProduct(productData: {
     name: string;
     price: number;
     description: string;
     tags: string;
-    category?: string;
-    inStock?: boolean;
-    onSale?: boolean;
-    salePrice?: number;
+    image?: File;
   }) {
+    const formData = new FormData();
+    formData.append('name', productData.name);
+    formData.append('price', productData.price.toString());
+    formData.append('description', productData.description);
+    formData.append('tags', productData.tags);
+    
+    if (productData.image) {
+      formData.append('image', productData.image);
+    }
+    
     return this.request('/products/createproduct', {
       method: 'POST',
-      body: JSON.stringify(product),
+      body: formData,
+      isFormData: true,
     });
   }
 
@@ -99,10 +112,6 @@ class ApiClient {
     price?: number;
     description?: string;
     tags?: string;
-    category?: string;
-    inStock?: boolean;
-    onSale?: boolean;
-    salePrice?: number;
   }) {
     return this.request(`/products/${id}`, {
       method: 'PUT',
