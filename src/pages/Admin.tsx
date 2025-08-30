@@ -71,8 +71,18 @@ const Admin = () => {
     try {
       setLoading(true);
       const fetchedProducts = await api.getProducts(skip);
-      setProducts(fetchedProducts);
+      
+      // Ensure we always have an array
+      if (Array.isArray(fetchedProducts)) {
+        setProducts(fetchedProducts);
+      } else {
+        console.warn('API returned non-array response:', fetchedProducts);
+        setProducts([]);
+        toast.error('Invalid products data received from server');
+      }
     } catch (error) {
+      console.error('Failed to load products:', error);
+      setProducts([]); // Reset to empty array on error
       if (error instanceof ApiError) {
         toast.error(`Failed to load products: ${error.message}`);
       } else {
